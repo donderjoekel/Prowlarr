@@ -3,7 +3,6 @@ using FizzWare.NBuilder;
 using FluentAssertions;
 using NUnit.Framework;
 using NzbDrone.Core.Indexers;
-using NzbDrone.Core.Indexers.Newznab;
 using NzbDrone.Core.Lifecycle;
 using NzbDrone.Core.Test.Framework;
 using NzbDrone.Test.Common;
@@ -19,8 +18,6 @@ namespace NzbDrone.Core.Test.IndexerTests
         {
             _indexers = new List<IIndexer>();
 
-            _indexers.Add(Mocker.Resolve<Newznab>());
-
             Mocker.SetConstant<IEnumerable<IIndexer>>(_indexers);
         }
 
@@ -32,7 +29,6 @@ namespace NzbDrone.Core.Test.IndexerTests
             Mocker.SetConstant<IIndexerRepository>(repo);
 
             var existingIndexers = Builder<IndexerDefinition>.CreateNew().BuildNew();
-            existingIndexers.ConfigContract = nameof(NewznabSettings);
 
             repo.Insert(existingIndexers);
 

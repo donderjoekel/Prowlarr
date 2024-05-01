@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp.Xml" Version="1.0.0" />
+    <PackageReference Include="BencodeNET" Version="5.0.0" />
     <PackageReference Include="Dapper" Version="2.0.151" />
     <PackageReference Include="MailKit" Version="3.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="6.0.29" />
@@ -37,5 +38,11 @@
     <Content Include="Localization\Core\**">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Indexers\Definitions\NepNep\NepNepGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NepNepGenerator.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

@@ -1,0 +1,165 @@
+<#@ template hostspecific="true" language="C#" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ include file="../Model.ttinclude" #><#@ import namespace="System.Linq" #>
+
+<#
+    var models = new List<MadaraModel>()
+    {
+        new("AquaManga", "Aqua Manga", "https://aquamanga.org"),
+        new("AquaScans", "AQUA Scans", "https://aquascans.com"),
+        new("ArcaneScans", "Arcane Scans", "https://arcanescans.com"),
+        new("BananaManga", "Banana Manga", "https://bananamanga.net"),
+        new("CoffeeManga", "Coffee Manga", "https://coffeemanga.io"),
+        new("DarkScans", "Dark Scans", "https://darkscans.com"),
+        new("DecadenceScans", "Decadence Scans", "https://reader.decadencescans.com"),
+        new("FactManga", "Fact Manga", "https://factmanga.com"),
+        new("FreeManga", "Free Manga", "https://freemanga.me"),
+        new("FreeMangaTop", "Free Manga Top", "https://freemangatop.com"),
+        new("GalaxyDegenScans", "Galaxy Degen Scans", "https://gdscans.com"),
+        new("GirlsLoveManga", "Girls Love Manga", "https://glmanga.com"),
+        new("HariManga", "Hari Manga", "https://harimanga.com"),
+        new("HiperDex", "Hiper Dex", "https://hiperdex.com"),
+        new("HReads", "H Reads", "https://hreads.net"),
+        new("ImmortalUpdates", "Immortal Updates", "https://immortalupdates.com"),
+        new("JiManga", "Ji Manga", "https://s2manga.io"),
+        new("KissManga", "Kiss Manga", "https://kissmanga.in"),
+        new("KsGroupScans", "KS Group Scans", "https://ksgroupscans.com"),
+        new("KunManga", "Kun Manga", "https://kunmanga.com"),
+        new("LsComic", "Leviatan Scans", "https://lscomic.com"),
+        new("LhTranslation", "LH Translation", "https://lhtranslation.net"),
+        new("LilyManga", "Lily Manga", "https://lilymanga.net"),
+        new("MadaraDex", "Madara Dex", "https://madaradex.org"),
+        new("MangaAction", "Manga Action", "https://mangaaction.com"),
+        new("MangaBee", "Manga Bee", "https://mangazin.org"),
+        new("MangaDistrict", "Manga District", "https://mangadistrict.com"),
+        new("MangaKiss", "Manga Kiss", "https://mangakiss.org"),
+        new("MangaOnlineTeam", "Manga Online Team", "https://mangaonlineteam.com"),
+        new("MangaRead", "Manga Read", "https://mangaread.co"),
+        new("MangaRockTeam", "Manga Rock Team", "https://mangarockteam.com"),
+        new("MangaWeebs", "Manga Weebs", "https://mangaweebs.org"),
+        new("MangaClash", "Manga Clash", "https://toonclash.com"),
+        new("MangaFoxFull", "Manga Fox Full", "https://mangafoxfull.com"),
+        new("MangaFreak", "Manga Freak", "https://mangafreak.online"),
+        new("MangaGG", "Manga GG", "https://mangagg.com"),
+        new("MangaGoYaoi", "Manga Go Yaoi", "https://mangagoyaoi.com"),
+        new("MangaManiacs", "Manga Maniacs", "https://mangamaniacs.org"),
+        new("MangaReadOrg", "Manga Read", "https://www.mangaread.org"),
+        new("MangaRolls", "Manga Rolls", "https://mangarolls.net"),
+        new("MangaRyu", "Manga Ryu", "https://mangaryu.com"),
+        new("MangaSco", "Manga Sco", "https://manhwasco.net"),
+        new("MangaSushi", "Manga Sushi", "https://mangasushi.org"),
+        new("MangaTyrant", "Manga Tyrant", "https://mangatyrant.com"),
+        new("MangaUs", "Manga US", "https://mangaus.xyz"),
+        new("ManhuaEs", "Manhua ES", "https://manhuaes.com"),
+        new("ManhuaZonghe", "Manhua Zonghe", "https://manhuazonghe.com"),
+        new("ManhuaFast", "Manhua Fast", "https://manhuafast.com"),
+        new("Manhuaga", "Manhuaga", "https://manhuaga.com"),
+        new("ManhuaHot", "Manhua Hot", "https://manhuahot.com"),
+        new("ManhuaManhwa", "Manhua Manhwa", "https://manhuamanhwa.com"),
+        new("ManhuaUs", "Manhua US", "https://manhuaus.com"),
+        new("ManhuaZone", "Manhua Zone", "https://manhuazone.org"),
+        new("Manhwa68", "Manhwa 68", "https://manhwa68.com"),
+        new("ManhwaClan", "Manhwa Clan", "https://manhwaclan.com"),
+        new("ManhwaFull", "Manhwa Full", "https://manhwafull.com"),
+        new("ManhwaManhua", "Manhwa Manhua", "https://manhwamanhua.com"),
+        new("ManhwaNew", "Manhwa New", "https://manhwanew.com"),
+        new("ManhwaTop", "Manhwa top", "https://manhwatop.com"),
+        new("ManyComic", "Many Comic", "https://manycomic.com"),
+        new("ManyToonMe", "Many Toon.me", "https://manytoon.me"),
+        new("ManyToon", "Many Toon", "https://manytoon.com"),
+        new("MortalsGroove", "Mortals Groove", "https://mortalsgroove.com"),
+        new("MurimScan", "Murim Scan", "https://murimscan.run"),
+        new("NewManhua", "New Manhua", "https://newmanhua.com"),
+        new("NightComic", "Night Comic", "https://www.nightcomic.com"),
+        new("NitroManga", "Nitro Manga", "https://nitromanga.com"),
+        new("NovelCrow", "Novel Crow", "https://novelcrow.com"),
+        new("NovelMic", "Novel Mic", "https://novelmic.com"),
+        new("ParagonScans", "Paragon Scans", "https://paragonscans.com"),
+        new("PawManga", "Paw Manga", "https://pawmanga.com"),
+        new("PetroTechSocienty", "Petro Tech Society", "https://www.petrotechsociety.org"),
+        new("PlatinumScans", "Platinum Crown", "https://platinumscans.com"),
+        new("PonyManga", "Pony Manga", "https://ponymanga.com"),
+        new("ReedFreeComics", "Read Free Comics", "https://readfreecomics.com"),
+        new("S2Manga", "S2 Manga", "https://s2manga.com"),
+        new("ShibaManga", "Shiba Manga", "https://shibamanga.com"),
+        new("ShootingStarScans", "Shooting Star Scans", "https://shootingstarscans.com"),
+        new("SumManga", "Sum Manga", "https://summanga.com"),
+        new("TheBlankScanlation", "The Blank Scanlation", "https://theblank.net"),
+        new("TheGuild", "The Guild", "https://theguildscans.com"),
+        new("TopReadManwa", "Top Read Manhwa", "https://topreadmanhwa.com"),
+        new("WebdexScans", "Webdex Scans", "https://webdexscans.com"),
+        new("YaoiScan", "Yaoi Scan", "https://yaoiscan.com"),
+        new("ZandyNoFansub", "Zandy no Fansub", "https://zandynofansub.aishiteru.org"),
+        new("ZinChanManga", "Zin Chan Manga", "https://zinchanmanga.com"),
+        new("ResetScans", "Reset Scans", "https://reset-scans.xyz/")
+    };
+
+    var dupedGroups = models.GroupBy(x => x.ClassName).Where(x => x.Count() > 1).ToList();
+    foreach (var dupedGroup in dupedGroups)
+    {
+        Console.WriteLine("Duplicate group: " + dupedGroup.Key);
+    }
+
+    if (dupedGroups.Any())
+    {
+        throw new Exception("Duplicates found, exiting");
+    }
+
+    var generatedFolderPath = Path.Combine(Path.GetDirectoryName(Host.ResolvePath("MadaraGenerator.cs")), "Generated");
+    if (Directory.Exists(generatedFolderPath))
+        Directory.Delete(generatedFolderPath, true);
+
+    foreach (var model in models)
+    {
+        var fileName = $"{model.ClassName}.g.cs";
+        var filePath = Host.ResolvePath(fileName);
+
+        var directoryName = Path.GetDirectoryName(filePath);
+        var generatedPath = Path.Combine(directoryName, "Generated");
+
+        if (!Directory.Exists(generatedPath))
+            Directory.CreateDirectory(generatedPath);
+
+        var generatedFilePath = Path.Combine(generatedPath, fileName);
+
+        File.WriteAllText(generatedFilePath, GenerateClass(model));
+    }
+#>
+
+<#+
+    public string GenerateClass(MadaraModel model)
+    {
+        return $@"// Auto generated
+
+using System;
+using NLog;
+using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Messaging.Events;
+
+namespace NzbDrone.Core.Indexers.Definitions.Madara;
+
+public class {model.ClassName} : MadaraBase
+{{
+    public {model.ClassName}(IIndexerHttpClient httpClient, IEventAggregator eventAggregator, IIndexerStatusService indexerStatusService, IConfigService configService, Logger logger, IServiceProvider provider)
+        : base(httpClient, eventAggregator, indexerStatusService, configService, logger, provider)
+    {{
+    }}
+
+    public override string Name => ""{model.Name}"";
+    public override string[] IndexerUrls => new[] {{ ""{model.Url}"" }};
+}}
+
+";
+    }
+
+    public class MadaraModel : Model
+    {
+        public readonly bool AltMode;
+
+        public MadaraModel(string className, string name, string siteLink, bool altMode = false) : base(className, name, siteLink)
+        {
+            AltMode = altMode;
+        }
+    }
+#>

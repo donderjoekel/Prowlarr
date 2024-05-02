@@ -44,5 +44,13 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NepNepGenerator.cs</LastGenOutput>
     </None>
+    <None Update="Indexers\Definitions\BuddyComplex\BuddyComplexGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BuddyComplexGenerator.cs</LastGenOutput>
+    </None>
+    <None Update="Indexers\Definitions\Madara\MadaraGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MadaraGenerator.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

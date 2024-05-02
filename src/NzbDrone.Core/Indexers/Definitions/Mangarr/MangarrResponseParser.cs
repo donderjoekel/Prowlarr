@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Parser.Model;
+using NzbDrone.Core.ThingiProvider;
 
 namespace NzbDrone.Core.Indexers.Definitions.Mangarr;
 
@@ -23,9 +24,17 @@ public abstract class MangarrResponseParser : IMangarrParseIndexerResponse
     private static readonly Regex MonthsAgoRegex = new Regex(@"(\d+) months? ago", RegexOptions.IgnoreCase);
     private static readonly Regex ChapterRegex = new Regex(@"[Cc]hapter\s(\d+(\.\d+)?)");
 
-    public Action<IDictionary<string, string>, DateTime?> CookiesUpdater { get; set; }
+    private readonly ProviderDefinition _providerDefinition;
 
-    protected abstract string IndexerName { get; }
+    public ProviderDefinition ProviderDefinition => _providerDefinition;
+    public MangarrBaseSettings Settings => (MangarrBaseSettings)_providerDefinition.Settings;
+
+    protected MangarrResponseParser(ProviderDefinition providerDefinition)
+    {
+        _providerDefinition = providerDefinition;
+    }
+
+    public Action<IDictionary<string, string>, DateTime?> CookiesUpdater { get; set; }
 
     public IList<ReleaseInfo> ParseResponse(IndexerResponse indexerResponse)
     {
@@ -89,7 +98,7 @@ public abstract class MangarrResponseParser : IMangarrParseIndexerResponse
     {
         return new TorrentInfo
         {
-            Title = $"[{IndexerName}] {title} - S01E{chapterNumber}",
+            Title = $"[{_providerDefinition.Name}] {title} - S01E{chapterNumber}",
             PublishDate = parsedDate,
             DownloadUrl = url,
             Categories = new List<IndexerCategory> { NewznabStandardCategory.TV },

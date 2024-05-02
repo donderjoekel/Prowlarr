@@ -7,16 +7,27 @@ using BencodeNET.Objects;
 using BencodeNET.Torrents;
 using NLog;
 using NzbDrone.Core.Configuration;
-using NzbDrone.Core.Indexers.Settings;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Reflection;
 using Torrent = BencodeNET.Torrents.Torrent;
 
 namespace NzbDrone.Core.Indexers.Definitions.Mangarr;
 
-public abstract class MangarrBase<TRequestGenerator, TResponseParser> : TorrentIndexerBase<NoAuthTorrentBaseSettings>
+public abstract class MangarrBase<TRequestGenerator, TResponseParser>
+    : MangarrBase<TRequestGenerator, TResponseParser, MangarrBaseSettings>
     where TRequestGenerator : MangarrRequestGenerator
     where TResponseParser : MangarrResponseParser
+{
+    protected MangarrBase(IIndexerHttpClient httpClient, IEventAggregator eventAggregator, IIndexerStatusService indexerStatusService, IConfigService configService, Logger logger, IServiceProvider provider)
+        : base(httpClient, eventAggregator, indexerStatusService, configService, logger, provider)
+    {
+    }
+}
+
+public abstract class MangarrBase<TRequestGenerator, TResponseParser, TSettings> : TorrentIndexerBase<MangarrBaseSettings>
+    where TRequestGenerator : MangarrRequestGenerator
+    where TResponseParser : MangarrResponseParser
+    where TSettings : MangarrBaseSettings
 {
     private readonly IServiceProvider _provider;
 
@@ -86,11 +97,11 @@ public abstract class MangarrBase<TRequestGenerator, TResponseParser> : TorrentI
 
     public sealed override IParseIndexerResponse GetParser()
     {
-        return CreationHelper.Create<TResponseParser>(_provider, this, Settings);
+        return CreationHelper.Create<TResponseParser>(_provider, this, Definition, Settings);
     }
 
     public sealed override IIndexerRequestGenerator GetRequestGenerator()
     {
-        return CreationHelper.Create<TRequestGenerator>(_provider, Settings);
+        return CreationHelper.Create<TRequestGenerator>(_provider, this, Definition, Settings);
     }
 }

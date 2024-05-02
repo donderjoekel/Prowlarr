@@ -7,24 +7,19 @@ using Newtonsoft.Json;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Indexers.Definitions.Mangarr;
-using NzbDrone.Core.Indexers.Settings;
 using NzbDrone.Core.Parser.Model;
+using NzbDrone.Core.ThingiProvider;
 
 namespace NzbDrone.Core.Indexers.Definitions.NepNep;
 
 public class NepNepResponseParser : MangarrResponseParser
 {
-    private readonly NepNepBase _indexer;
-    private readonly NoAuthTorrentBaseSettings _settings;
     private readonly IIndexerHttpClient _httpClient;
 
-    protected override string IndexerName => _indexer.Name;
-
-    public NepNepResponseParser(NepNepBase indexer, IIndexerHttpClient httpClient, NoAuthTorrentBaseSettings settings)
+    public NepNepResponseParser(ProviderDefinition providerDefinition, IIndexerHttpClient httpClient)
+        : base(providerDefinition)
     {
-        _indexer = indexer;
         _httpClient = httpClient;
-        _settings = settings;
     }
 
     protected override IList<TorrentInfo> ParseRssResponse(HttpResponse response)
@@ -35,7 +30,7 @@ public class NepNepResponseParser : MangarrResponseParser
         var releases = JsonConvert.DeserializeObject<List<LatestRelease>>(json);
         foreach (var latestRelease in releases)
         {
-            var url = CreateUrl(_settings.BaseUrl,
+            var url = CreateUrl(Settings.BaseUrl,
                 latestRelease.IndexName,
                 latestRelease.Chapter,
                 out var chapterNumber);
@@ -60,7 +55,7 @@ public class NepNepResponseParser : MangarrResponseParser
         var items = directory.Where(x => StringExtensions.ContainsIgnoreCase((string)x.Slug, query) || StringExtensions.ContainsIgnoreCase((IEnumerable<string>)x.al, query)).ToList();
         foreach (var directoryItem in items)
         {
-            var request = new HttpRequest(_settings.BaseUrl + "manga/" + directoryItem.Index);
+            var request = new HttpRequest(Settings.BaseUrl + "manga/" + directoryItem.Index);
             response = _httpClient.Execute(request);
             match = Regex.Match(response.Content, @"(?=Chapters =).+?(\[.+?\])\;");
             json = match.Groups[1].Value;
@@ -68,7 +63,7 @@ public class NepNepResponseParser : MangarrResponseParser
 
             foreach (var chapter in chapters)
             {
-                var url = CreateUrl(_settings.BaseUrl, directoryItem.Index, chapter.Chapter, out var chapterNumber);
+                var url = CreateUrl(Settings.BaseUrl, directoryItem.Index, chapter.Chapter, out var chapterNumber);
 
                 if (episode.IsNotNullOrWhiteSpace() && episode != chapterNumber.ToString(CultureInfo.InvariantCulture))
                 {

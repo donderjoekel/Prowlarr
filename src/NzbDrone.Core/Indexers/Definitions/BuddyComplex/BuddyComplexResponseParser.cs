@@ -7,25 +7,20 @@ using AngleSharp.Html.Parser;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Indexers.Definitions.Mangarr;
-using NzbDrone.Core.Indexers.Settings;
 using NzbDrone.Core.Parser.Model;
+using NzbDrone.Core.ThingiProvider;
 
 namespace NzbDrone.Core.Indexers.Definitions.BuddyComplex;
 
 public class BuddyComplexResponseParser : MangarrResponseParser
 {
-    private readonly BuddyComplexBase _indexer;
-    private readonly NoAuthTorrentBaseSettings _settings;
     private readonly IIndexerHttpClient _httpClient;
 
-    public BuddyComplexResponseParser(BuddyComplexBase indexer, NoAuthTorrentBaseSettings settings, IIndexerHttpClient httpClient)
+    public BuddyComplexResponseParser(ProviderDefinition providerDefinition, IIndexerHttpClient httpClient)
+        : base(providerDefinition)
     {
-        _indexer = indexer;
-        _settings = settings;
         _httpClient = httpClient;
     }
-
-    protected override string IndexerName => _indexer.Name;
 
     protected override IList<TorrentInfo> ParseRssResponse(HttpResponse response)
     {
@@ -55,7 +50,7 @@ public class BuddyComplexResponseParser : MangarrResponseParser
 
                 releases.Add(
                     CreateTorrentInfo(
-                        _settings.BaseUrl + anchorElement.PathName.Trim('/'),
+                        Settings.BaseUrl + anchorElement.PathName.Trim('/'),
                         title,
                         episode,
                         parsedDate));
@@ -72,7 +67,7 @@ public class BuddyComplexResponseParser : MangarrResponseParser
         var elements = document.QuerySelectorAll<IHtmlAnchorElement>("div.book-detailed-item .meta .title a");
         foreach (var element in elements)
         {
-            var request = new HttpRequest(_settings.BaseUrl + "api/manga/" + element.PathName.Trim('/') +
+            var request = new HttpRequest(Settings.BaseUrl + "api/manga/" + element.PathName.Trim('/') +
                                           "/chapters?source=detail");
             var result = _httpClient.Execute(request);
             document = new HtmlParser().ParseDocument(result.Content);
@@ -92,7 +87,7 @@ public class BuddyComplexResponseParser : MangarrResponseParser
                 DateTime.TryParse(date, out var parsedDate);
 
                 releases.Add(CreateTorrentInfo(
-                    _settings.BaseUrl + anchorElement.PathName.Trim('/'),
+                    Settings.BaseUrl + anchorElement.PathName.Trim('/'),
                     element.TextContent.Trim(),
                     parsedEpisode,
                     parsedDate));

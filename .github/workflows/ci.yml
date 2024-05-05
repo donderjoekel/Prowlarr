@@ -83,4 +83,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-frontend
-        path: _output/${{ matrix.publish-folder }}
+        path: _output/

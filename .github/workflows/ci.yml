@@ -84,3 +84,31 @@ jobs:
       with:
         name: ${{ matrix.publish-label }}-frontend
         path: _output/
+  package:
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out
+      uses: actions/checkout@v4
+    - name: Download Backend Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: linux-build
+        path: _output/net6.0/linux-x64/publish/
+    - name: Download Frontend Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: linux-frontend
+        path: _output/
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.421'
+    - name: Package
+      shell: bash
+      run: ./build.sh --package
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-package
+        path: _output/net6.0/linux-x64/package/

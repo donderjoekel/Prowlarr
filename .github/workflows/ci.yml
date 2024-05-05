@@ -49,7 +49,7 @@ jobs:
         PROWLARR_VERSION="${{ env.VERSION }}.$((${{ github.run_number }}+800))"
         DOTNET_VERSION=$(jq -r '.sdk.version' global.json)
 
-        echo "SDK_PATH=${{ env.DOTNET_ROOT }}/sdk/${DOTNET_VERSION}" >> "$GITHUB_ENV"
+        echo "SDK_PATH=${{ env.DOTNET_ROOT }}\sdk\${DOTNET_VERSION}" >> "$GITHUB_ENV"
         echo "PROWLARR_VERSION=$PROWLARR_VERSION" >> "$GITHUB_ENV"
         echo "BRANCH=${RAW_BRANCH_NAME/\//-}" >> "$GITHUB_ENV"
 

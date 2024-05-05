@@ -37,10 +37,6 @@ jobs:
             publish-folder: linux-x64
     runs-on: ${{ matrix.os }}
     steps:
-    - name: log files
-      run: |
-        echo "Listing publish folder
-        echo ${{ matrix.publish-folder }}
     - name: Check out
       uses: actions/checkout@v4
     - name: Setup .NET
@@ -62,22 +58,16 @@ jobs:
     - name: Build Backend
       shell: bash
       run: ./build.sh --backend
-    - name: log files
-      run: |
-        echo "Listing current dir"
-        ls -la 
-        echo "Listing specific dir"
-        ls -la _output/net6.0/${{ matrix.publish-folder }}/publish/
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:
         name: build
         path: _output/net6.0/${{ matrix.publish-folder }}/publish/
     - name: Publish Test Artifact
-      uses: ./.github/actions/publish-test-artifact
+      uses: actions/upload-artifact@v4
       with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: ${{ runner.os }}
+        name: build
+        path: _tests/net6.0/${{ matrix.publish-folder }}/publish/
 
 
   # backend:

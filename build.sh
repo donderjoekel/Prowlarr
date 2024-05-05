@@ -28,7 +28,7 @@ UpdateVersionNumber()
 EnableExtraPlatformsInSDK()
 {
     SDK_PATH=$(dotnet --list-sdks | grep -P '6\.\d\.\d+' | head -1 | sed 's/\(6\.[0-9]*\.[0-9]*\).*\[\(.*\)\]/\2\/\1/g')
-    BUNDLEDVERSIONS="${SDK_PATH}/Microsoft.NETCoreSdk.BundledVersions.props"
+    BUNDLEDVERSIONS="${MSBuildSDKsPath}/Microsoft.NETCoreSdk.BundledVersions.props"
     if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
         echo "Extra platforms already enabled"
     else

@@ -19,9 +19,6 @@ on:
         description: 'Prowlarr version'
         type: string
         required: true
-    secrets:
-      SERVICES_API_KEY:
-        required: true
 
 jobs:
   package:
@@ -29,14 +26,14 @@ jobs:
       matrix:
         platform: [linux] # , macos, windows]
         include:
-        #   - platform: freebsd
-        #     os: ubuntu-latest
+          # - platform: freebsd
+          #   os: ubuntu-latest
           - platform: linux
             os: ubuntu-latest
-          - platform: macos
-            os: ubuntu-latest
-          - platform: windows
-            os: windows-latest
+          # - platform: macos
+          #   os: ubuntu-latest
+          # - platform: windows
+          #   os: windows-latest
 
     runs-on: ${{ matrix.os }}
     steps:

@@ -58,6 +58,12 @@ jobs:
     - name: Build Backend
       shell: bash
       run: ./build.sh --backend
+    - name: log files
+      run: |
+        echo "Listing current dir"
+        ls -la 
+        echo "Listing specific dir"
+        ls -la _output/net6.0/${{matrix.publish-folder}}/publish/
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:

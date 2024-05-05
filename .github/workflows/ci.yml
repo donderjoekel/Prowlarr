@@ -113,7 +113,7 @@ jobs:
         dotnet-version: '6.0.421'
     - name: Package
       shell: bash
-      run: ./build.sh --package
+      run: ./build.sh --packages
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:

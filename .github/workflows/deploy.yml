@@ -27,10 +27,10 @@ jobs:
   package:
     strategy:
       matrix:
-        platform: [linux, macos, windows]
+        platform: [linux] # , macos, windows]
         include:
-          - platform: freebsd
-            os: ubuntu-latest
+        #   - platform: freebsd
+        #     os: ubuntu-latest
           - platform: linux
             os: ubuntu-latest
           - platform: macos

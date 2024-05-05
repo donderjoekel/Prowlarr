@@ -56,12 +56,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-build
-        path: _output/net6.0/${{ matrix.publish-folder }}/publish/
+        path: _output/
     - name: Publish Test Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-tests
-        path: _tests/net6.0/${{ matrix.publish-folder }}/publish/
+        path: _tests/
   frontend:
     strategy:
       matrix:
@@ -109,12 +109,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-build
-        path: _output/net6.0/${{ matrix.publish-folder }}/publish/
+        path: _output/
     - name: Download Frontend Artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-frontend
-        path: _output/net6.0/${{ matrix.publish-folder }}/
+        path: _output/
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
@@ -126,4 +126,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-package
-        path: _output/net6.0/${{ matrix.publish-folder }}/package/
+        path: _artifacts/

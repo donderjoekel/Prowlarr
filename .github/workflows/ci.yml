@@ -26,6 +26,7 @@ env:
   RAW_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   PROWLARR_MAJOR_VERSION: 0
   VERSION: 0.1.0
+  NODE: '20.X'
 
 jobs:
   backend:
@@ -35,6 +36,7 @@ jobs:
         include:
           - os: ubuntu-latest
             publish-folder: linux-x64
+            publish-label: linux
     runs-on: ${{ matrix.os }}
     steps:
     - name: Check out
@@ -43,109 +45,42 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.421'
-    # - name: Setup Environment Variables
-    #   id: variables
-    #   shell: bash
-    #   run: |
-    #       # BUNDLEDVERSIONS=${AGENT_TOOLSDIRECTORY}/dotnet/sdk/${DOTNETVERSION}/Microsoft.NETCoreSdk.BundledVersions.props
-    #       # echo $BUNDLEDVERSIONS
-    #       # if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
-    #       #   echo "Extra platforms already enabled"
-    #       # else
-    #       echo "Enabling extra platform support"
-    #       sed -i.ORI 's/osx-x64/osx-x64;linux-x86/' $BUNDLEDVERSIONS
-    #       # fi
     - name: Build Backend
       shell: bash
       run: ./build.sh --backend
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build
+        name: ${{ matrix.publish-label }}-build
         path: _output/net6.0/${{ matrix.publish-folder }}/publish/
     - name: Publish Test Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build
+        name: ${{ matrix.publish-label }}-tests
         path: _tests/net6.0/${{ matrix.publish-folder }}/publish/
-
-
-  # backend:
-  #   runs-on: windows-latest
-  #   outputs:
-  #     framework: ${{ steps.variables.outputs.framework }}
-  #     major_version: ${{ steps.variables.outputs.major_version }}
-  #     version: ${{ steps.variables.outputs.version }}
-  #   steps:
-  #   - name: Check out
-  #     uses: actions/checkout@v4
-
-  #   - name: Setup .NET
-  #     uses: actions/setup-dotnet@v4
-
-  #   - name: Setup Environment Variables
-  #     id: variables
-  #     shell: bash
-  #     run: |
-  #       # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
-  #       PROWLARR_VERSION="${{ env.VERSION }}.$((${{ github.run_number }}+800))"
-  #       DOTNET_VERSION=$(jq -r '.sdk.version' global.json)
-
-  #       # echo "SDK_PATH=${{ env.DOTNET_ROOT }}sdk/${DOTNET_VERSION}" >> "$GITHUB_ENV"
-  #       echo "PROWLARR_VERSION=$PROWLARR_VERSION" >> "$GITHUB_ENV"
-  #       echo "BRANCH=${RAW_BRANCH_NAME/\//-}" >> "$GITHUB_ENV"
-
-  #       echo "framework=${{ env.FRAMEWORK }}" >> "$GITHUB_OUTPUT"
-  #       echo "major_version=${{ env.PROWLARR_MAJOR_VERSION }}" >> "$GITHUB_OUTPUT"
-  #       echo "version=$PROWLARR_VERSION" >> "$GITHUB_OUTPUT"
-
-  #   # - name: Enable Extra Platforms In SDK
-  #   #   shell: bash
-  #   #   run: ./build.sh --enable-extra-platforms-in-sdk
-
-  #   - name: Build Backend
-  #     shell: bash
-  #     run: ./build.sh --backend --enable-extra-platforms
-
-  #   # Test Artifacts
-
-  #   - name: Publish win-x64 Test Artifact
-  #     uses: ./.github/actions/publish-test-artifact
-  #     with:
-  #       framework: ${{ env.FRAMEWORK }}
-  #       runtime: win-x64
-
-  #   - name: Publish linux-x64 Test Artifact
-  #     uses: ./.github/actions/publish-test-artifact
-  #     with:
-  #       framework: ${{ env.FRAMEWORK }}
-  #       runtime: linux-x64
-
-  #   - name: Publish osx-x64 Test Artifact
-  #     uses: ./.github/actions/publish-test-artifact
-  #     with:
-  #       framework: ${{ env.FRAMEWORK }}
-  #       runtime: osx-x64
-
-  #   # Build Artifacts (grouped by OS)
-    
-  #   - name: Publish FreeBSD Artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: build_freebsd
-  #       path: _artifacts/freebsd-*/**/*
-  #   - name: Publish Linux Artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: build_linux
-  #       path: _artifacts/linux-*/**/*
-  #   - name: Publish macOS Artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: build_macos
-  #       path: _artifacts/osx-*/**/*
-  #   - name: Publish Windows Artifact
-  #     uses: actions/upload-artifact@v4
-  #     with:
-  #       name: build_windows
-  #       path: _artifacts/win-*/**/*
+  frontend:
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            publish-folder: linux-x64
+            publish-label: linux
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Check out
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ env.NODE }}
+    - name: Build Frontend
+      shell: bash
+      run: ./build.sh --frontend
+      env:
+        FORCE_COLOR: 0
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.publish-label }}-frontend
+        path: _output/${{ matrix.publish-folder }}

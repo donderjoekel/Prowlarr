@@ -54,7 +54,7 @@ jobs:
     #       # fi
     - name: Build Backend
       shell: bash
-      run: ./build.sh --backend --enable-extra-platforms
+      run: ./build.sh --backend
 
 
   # backend:

@@ -29,81 +29,109 @@ env:
 
 jobs:
   backend:
-    runs-on: windows-latest
-    outputs:
-      framework: ${{ steps.variables.outputs.framework }}
-      major_version: ${{ steps.variables.outputs.major_version }}
-      version: ${{ steps.variables.outputs.version }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
     - name: Check out
       uses: actions/checkout@v4
-
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
-
+      with:
+        dotnet-version: '6.0.421'
     - name: Setup Environment Variables
       id: variables
       shell: bash
       run: |
-        # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
-        PROWLARR_VERSION="${{ env.VERSION }}.$((${{ github.run_number }}+800))"
-        DOTNET_VERSION=$(jq -r '.sdk.version' global.json)
-
-        # echo "SDK_PATH=${{ env.DOTNET_ROOT }}sdk/${DOTNET_VERSION}" >> "$GITHUB_ENV"
-        echo "PROWLARR_VERSION=$PROWLARR_VERSION" >> "$GITHUB_ENV"
-        echo "BRANCH=${RAW_BRANCH_NAME/\//-}" >> "$GITHUB_ENV"
-
-        echo "framework=${{ env.FRAMEWORK }}" >> "$GITHUB_OUTPUT"
-        echo "major_version=${{ env.PROWLARR_MAJOR_VERSION }}" >> "$GITHUB_OUTPUT"
-        echo "version=$PROWLARR_VERSION" >> "$GITHUB_OUTPUT"
-
-    # - name: Enable Extra Platforms In SDK
-    #   shell: bash
-    #   run: ./build.sh --enable-extra-platforms-in-sdk
-
+          # BUNDLEDVERSIONS=${AGENT_TOOLSDIRECTORY}/dotnet/sdk/${DOTNETVERSION}/Microsoft.NETCoreSdk.BundledVersions.props
+          # echo $BUNDLEDVERSIONS
+          # if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
+          #   echo "Extra platforms already enabled"
+          # else
+          echo "Enabling extra platform support"
+          sed -i.ORI 's/osx-x64/osx-x64;linux-x86/' $BUNDLEDVERSIONS
+          # fi
     - name: Build Backend
       shell: bash
       run: ./build.sh --backend --enable-extra-platforms
 
-    # Test Artifacts
 
-    - name: Publish win-x64 Test Artifact
-      uses: ./.github/actions/publish-test-artifact
-      with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: win-x64
+  # backend:
+  #   runs-on: windows-latest
+  #   outputs:
+  #     framework: ${{ steps.variables.outputs.framework }}
+  #     major_version: ${{ steps.variables.outputs.major_version }}
+  #     version: ${{ steps.variables.outputs.version }}
+  #   steps:
+  #   - name: Check out
+  #     uses: actions/checkout@v4
 
-    - name: Publish linux-x64 Test Artifact
-      uses: ./.github/actions/publish-test-artifact
-      with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: linux-x64
+  #   - name: Setup .NET
+  #     uses: actions/setup-dotnet@v4
 
-    - name: Publish osx-x64 Test Artifact
-      uses: ./.github/actions/publish-test-artifact
-      with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: osx-x64
+  #   - name: Setup Environment Variables
+  #     id: variables
+  #     shell: bash
+  #     run: |
+  #       # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
+  #       PROWLARR_VERSION="${{ env.VERSION }}.$((${{ github.run_number }}+800))"
+  #       DOTNET_VERSION=$(jq -r '.sdk.version' global.json)
 
-    # Build Artifacts (grouped by OS)
+  #       # echo "SDK_PATH=${{ env.DOTNET_ROOT }}sdk/${DOTNET_VERSION}" >> "$GITHUB_ENV"
+  #       echo "PROWLARR_VERSION=$PROWLARR_VERSION" >> "$GITHUB_ENV"
+  #       echo "BRANCH=${RAW_BRANCH_NAME/\//-}" >> "$GITHUB_ENV"
+
+  #       echo "framework=${{ env.FRAMEWORK }}" >> "$GITHUB_OUTPUT"
+  #       echo "major_version=${{ env.PROWLARR_MAJOR_VERSION }}" >> "$GITHUB_OUTPUT"
+  #       echo "version=$PROWLARR_VERSION" >> "$GITHUB_OUTPUT"
+
+  #   # - name: Enable Extra Platforms In SDK
+  #   #   shell: bash
+  #   #   run: ./build.sh --enable-extra-platforms-in-sdk
+
+  #   - name: Build Backend
+  #     shell: bash
+  #     run: ./build.sh --backend --enable-extra-platforms
+
+  #   # Test Artifacts
+
+  #   - name: Publish win-x64 Test Artifact
+  #     uses: ./.github/actions/publish-test-artifact
+  #     with:
+  #       framework: ${{ env.FRAMEWORK }}
+  #       runtime: win-x64
+
+  #   - name: Publish linux-x64 Test Artifact
+  #     uses: ./.github/actions/publish-test-artifact
+  #     with:
+  #       framework: ${{ env.FRAMEWORK }}
+  #       runtime: linux-x64
+
+  #   - name: Publish osx-x64 Test Artifact
+  #     uses: ./.github/actions/publish-test-artifact
+  #     with:
+  #       framework: ${{ env.FRAMEWORK }}
+  #       runtime: osx-x64
+
+  #   # Build Artifacts (grouped by OS)
     
-    - name: Publish FreeBSD Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_freebsd
-        path: _artifacts/freebsd-*/**/*
-    - name: Publish Linux Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_linux
-        path: _artifacts/linux-*/**/*
-    - name: Publish macOS Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_macos
-        path: _artifacts/osx-*/**/*
-    - name: Publish Windows Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_windows
-        path: _artifacts/win-*/**/*
+  #   - name: Publish FreeBSD Artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: build_freebsd
+  #       path: _artifacts/freebsd-*/**/*
+  #   - name: Publish Linux Artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: build_linux
+  #       path: _artifacts/linux-*/**/*
+  #   - name: Publish macOS Artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: build_macos
+  #       path: _artifacts/osx-*/**/*
+  #   - name: Publish Windows Artifact
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: build_windows
+  #       path: _artifacts/win-*/**/*

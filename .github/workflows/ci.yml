@@ -95,6 +95,10 @@ jobs:
             publish-label: linux
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Set RID and FRAMEWORK
+      run: |
+        echo "RID=${{ matrix.publish-folder }}" >> $GITHUB_ENV
+        echo "FRAMEWORK=net6.0" >> $GITHUB_ENV
     - name: Check out
       uses: actions/checkout@v4
     - name: Download Backend Artifact

@@ -21,37 +21,37 @@ on:
         required: true
 
 jobs:
-  package:
-    strategy:
-      matrix:
-        platform: [linux] # , macos, windows]
-        include:
-          # - platform: freebsd
-          #   os: ubuntu-latest
-          - platform: linux
-            os: ubuntu-latest
-          # - platform: macos
-          #   os: ubuntu-latest
-          # - platform: windows
-          #   os: windows-latest
+  # package:
+  #   strategy:
+  #     matrix:
+  #       platform: [linux] # , macos, windows]
+  #       include:
+  #         # - platform: freebsd
+  #         #   os: ubuntu-latest
+  #         - platform: linux
+  #           os: ubuntu-latest
+  #         # - platform: macos
+  #         #   os: ubuntu-latest
+  #         # - platform: windows
+  #         #   os: windows-latest
 
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Check out
-      uses: actions/checkout@v4
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - name: Check out
+  #     uses: actions/checkout@v4
 
-    - name: Package
-      uses: ./.github/actions/package
-      with:
-        framework: ${{ inputs.framework }}
-        platform: ${{ matrix.platform }}
-        artifact: ${{ matrix.platform }}-package
-        branch: ${{ inputs.branch }}
-        major_version: ${{ inputs.major_version }}
-        version: ${{ inputs.version }}
+  #   - name: Package
+  #     uses: ./.github/actions/package
+  #     with:
+  #       framework: ${{ inputs.framework }}
+  #       platform: ${{ matrix.platform }}
+  #       artifact: ${{ matrix.platform }}-package
+  #       branch: ${{ inputs.branch }}
+  #       major_version: ${{ inputs.major_version }}
+  #       version: ${{ inputs.version }}
 
   release:
-    needs: package
+    # needs: package
     runs-on: ubuntu-latest
     permissions:
       contents: write

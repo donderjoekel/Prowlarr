@@ -105,12 +105,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-build
-        path: _output
+        path: _output/net6.0/${{ matrix.publish-folder }}/publish/
     - name: Download Frontend Artifact
       uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.publish-label }}-frontend
-        path: _output
+        path: _output/net6.0/${{ matrix.publish-folder }}/
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:

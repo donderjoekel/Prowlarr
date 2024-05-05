@@ -40,18 +40,18 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.0.421'
-    - name: Setup Environment Variables
-      id: variables
-      shell: bash
-      run: |
-          # BUNDLEDVERSIONS=${AGENT_TOOLSDIRECTORY}/dotnet/sdk/${DOTNETVERSION}/Microsoft.NETCoreSdk.BundledVersions.props
-          # echo $BUNDLEDVERSIONS
-          # if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
-          #   echo "Extra platforms already enabled"
-          # else
-          echo "Enabling extra platform support"
-          sed -i.ORI 's/osx-x64/osx-x64;linux-x86/' $BUNDLEDVERSIONS
-          # fi
+    # - name: Setup Environment Variables
+    #   id: variables
+    #   shell: bash
+    #   run: |
+    #       # BUNDLEDVERSIONS=${AGENT_TOOLSDIRECTORY}/dotnet/sdk/${DOTNETVERSION}/Microsoft.NETCoreSdk.BundledVersions.props
+    #       # echo $BUNDLEDVERSIONS
+    #       # if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
+    #       #   echo "Extra platforms already enabled"
+    #       # else
+    #       echo "Enabling extra platform support"
+    #       sed -i.ORI 's/osx-x64/osx-x64;linux-x86/' $BUNDLEDVERSIONS
+    #       # fi
     - name: Build Backend
       shell: bash
       run: ./build.sh --backend --enable-extra-platforms

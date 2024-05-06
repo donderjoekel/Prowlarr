@@ -54,6 +54,10 @@ jobs:
         FRAMEWORK: ${{ inputs.framework }}
       shell: bash
       run: ./build.sh --packages
+    - name: Set executable bits
+      run: |
+        find . -name "Prowlarr" -exec chmod a+x {} \;
+        find . -name "Prowlarr.Update" -exec chmod a+x {} \;
     - name: Create linux archive
       if: ${{ inputs.build_target }} == 'linux-x64'
       run: |

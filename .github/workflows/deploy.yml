@@ -39,10 +39,10 @@ jobs:
 
     - name: Log current folder
       run: |
-        echo "ls -la"
+        ls -la
     - name: Log artifacts
       run: |
-        echo "ls -la _artifacts"
+        ls -la _artifacts
 
     - name: Get Previous Release
       id: previous-release

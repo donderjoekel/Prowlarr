@@ -76,12 +76,13 @@ jobs:
         include:
           - os: ubuntu-latest
             build_target: linux-x64
+            artifact_name: linux
     secrets: inherit
     uses: ./.github/workflows/package.yml
     with:
       os: ${{ matrix.os }}
       build_target: ${{ matrix.build_target }}
-      artifact_name: ${{ matrix.build_target }}
+      artifact_name: ${{ matrix.artifact_name }}
       dotnet_version: '6.0.421'
       release_version: ${{ github.env.PROWLARR_VERSION }}
       framework: "net6.0"

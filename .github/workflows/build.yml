@@ -37,6 +37,17 @@ jobs:
       run: |
         # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
         echo "PROWLARR_VERSION=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_ENV
+  envtest1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: test
+      run: |
+        echo "$PROWLARR_VERSION"
+    - name: test2
+      run: |
+        echo "$BLABLA"
+      env:
+        BLABLA: hello
   backend:
     needs: [versioning]
     strategy:

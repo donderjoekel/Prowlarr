@@ -56,8 +56,8 @@ jobs:
       run: ./build.sh --packages
     - name: Set executable bits
       run: |
-        find . -name "Prowlarr" -exec chmod -v a+x {} \;
-        find . -name "Prowlarr.Update" -exec chmod -v a+x {} \;
+        find . -name "Prowlarr" -exec chmod -v 777 {} \;
+        find . -name "Prowlarr.Update" -exec chmod -v 777 {} \;
     - name: Create linux archive
       if: ${{ inputs.build_target }} == 'linux-x64'
       run: |

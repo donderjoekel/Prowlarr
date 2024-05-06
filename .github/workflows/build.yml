@@ -31,14 +31,12 @@ env:
 jobs:
   versioning:
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.variables.outputs.version }}
     steps:
     - name: Set Version
       id: variables
       run: |
         # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
-        echo "version=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_ENV
+        echo "PROWLARR_VERSION=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_ENV
   backend:
     needs: [versioning]
     strategy:
@@ -78,18 +76,16 @@ jobs:
         include:
           - os: ubuntu-latest
             build_target: linux-x64
-            artifact_name: linux
     secrets: inherit
     uses: ./.github/workflows/package.yml
     with:
       os: ${{ matrix.os }}
       build_target: ${{ matrix.build_target }}
-      artifact_name: ${{ matrix.artifact_name }}
+      artifact_name: ${{ matrix.build_target }}
       dotnet_version: '6.0.421'
-      release_version: ${{ needs.versioning.outputs.version }}
+      release_version: ${{ github.env.PROWLARR_VERSION }}
       framework: "net6.0"
   deploy:
-    if: ${{ github.ref_name == 'develop' || github.ref_name == 'sourcerarr' }}
     needs: [versioning, backend, frontend, package]
     secrets: inherit
     uses: ./.github/workflows/deploy.yml
@@ -97,4 +93,4 @@ jobs:
       framework: "net6.0"
       branch: ${{ github.ref_name }}
       major_version: ${{ github.env.PROWLARR_MAJOR_VERSION }}
-      version: ${{ needs.versioning.outputs.version }}
+      version: ${{ github.env.PROWLARR_VERSION }}

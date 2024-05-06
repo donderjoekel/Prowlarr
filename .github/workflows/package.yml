@@ -62,5 +62,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         # name: release_${{ inputs.artifact_name }}
-        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}
+        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.${{ inputs.artifact_extension }}
         path: _artifacts/

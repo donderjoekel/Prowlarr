@@ -49,6 +49,14 @@ jobs:
         echo "$BLABLA"
       env:
         BLABLA: hello
+    - name: test3
+      run: |
+        echo "${{ env.PROWLARR_VERSION }}"
+    - name: test4
+      run: |
+        echo "$BLABLA"
+      env:
+        BLABLA: ${{ env.PROWLARR_VERSION }}
   backend:
     needs: [versioning]
     strategy:

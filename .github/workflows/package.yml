@@ -54,6 +54,8 @@ jobs:
         FRAMEWORK: ${{ inputs.framework }}
       shell: bash
       run: ./build.sh --packages
+    - name: Log artifacts
+      run: ls -la _artifacts/
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:

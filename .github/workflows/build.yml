@@ -44,8 +44,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: test
+      env:
+        PROWLARR_VERSION: ${{ needs.versioning.outputs.prowlarr_version }}
       run: |
-        echo ${{ needs.versioning.outputs.prowlarr_version }}
+        echo "$PROWLARR_VERSION"
   backend:
     needs: [versioning]
     strategy:
@@ -93,7 +95,7 @@ jobs:
       build_target: ${{ matrix.build_target }}
       artifact_name: ${{ matrix.artifact_name }}
       dotnet_version: '6.0.421'
-      release_version: ${{ github.env.PROWLARR_VERSION }}
+      release_version: ${{ needs.versioning.outputs.prowlarr_version }}
       framework: "net6.0"
   deploy:
     needs: [versioning, backend, frontend, package]
@@ -103,4 +105,4 @@ jobs:
       framework: "net6.0"
       branch: ${{ github.ref_name }}
       major_version: ${{ github.env.PROWLARR_MAJOR_VERSION }}
-      version: ${{ github.env.PROWLARR_VERSION }}
+      version: ${{ needs.versioning.outputs.prowlarr_version }}

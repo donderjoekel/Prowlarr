@@ -31,32 +31,21 @@ env:
 jobs:
   versioning:
     runs-on: ubuntu-latest
+    outputs:
+      prowlarr_version: ${{ steps.variables.outputs.prowlarr_version }}
     steps:
     - name: Set Version
       id: variables
       run: |
         # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
-        echo "PROWLARR_VERSION=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_ENV
+        echo "prowlarr_version=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_ENV
   envtest1:
     needs: [versioning]
     runs-on: ubuntu-latest
     steps:
     - name: test
       run: |
-        echo "$PROWLARR_VERSION"
-    - name: test2
-      run: |
-        echo "$BLABLA"
-      env:
-        BLABLA: hello
-    - name: test3
-      run: |
-        echo "${{ env.PROWLARR_VERSION }}"
-    - name: test4
-      run: |
-        echo "$BLABLA"
-      env:
-        BLABLA: ${{ env.PROWLARR_VERSION }}
+        echo ${{ needs.versioning.outputs.prowlarr_version }}
   backend:
     needs: [versioning]
     strategy:

@@ -43,14 +43,14 @@ jobs:
     needs: [versioning]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] #, windows-latest]
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
         include:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
-          - os: macos-latest
-            build_target: osx-x64
-            artifact_name: osx
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
           # - os: windows-latest
           #   build_target: win-x64
           #   artifact_name: win
@@ -66,14 +66,14 @@ jobs:
     needs: [versioning]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] #, windows-latest]
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
         include:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
-          - os: macos-latest
-            build_target: osx-x64
-            artifact_name: osx
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
           # - os: windows-latest
           #   build_target: win-x64
           #   artifact_name: win
@@ -87,14 +87,14 @@ jobs:
     needs: [versioning, backend, frontend]
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest] #, windows-latest]
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
         include:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
-          - os: macos-latest
-            build_target: osx-x64
-            artifact_name: osx
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
           # - os: windows-latest
           #   build_target: win-x64
           #   artifact_name: win

@@ -52,7 +52,7 @@ jobs:
             build_target: osx-x64
             artifact_name: osx
           - os: windows-latest
-            build_target: windows-x64
+            build_target: win-x64
             artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/backend.yml
@@ -75,7 +75,7 @@ jobs:
             build_target: osx-x64
             artifact_name: osx
           - os: windows-latest
-            build_target: windows-x64
+            build_target: win-x64
             artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/frontend.yml
@@ -96,7 +96,7 @@ jobs:
             build_target: osx-x64
             artifact_name: osx
           - os: windows-latest
-            build_target: windows-x64
+            build_target: win-x64
             artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/package.yml

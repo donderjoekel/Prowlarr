@@ -71,7 +71,7 @@ jobs:
       node_version: '20.X'
       artifact_name: ${{ matrix.artifact_name }}
   package:
-    needs: [backend,frontend]
+    needs: [versioning, backend, frontend]
     strategy:
       matrix:
         os: [ubuntu-latest] #, macos-latest, windows-latest]
@@ -86,6 +86,7 @@ jobs:
       build_target: ${{ matrix.build_target }}
       artifact_name: ${{ matrix.artifact_name }}
       dotnet_version: '6.0.421'
+      release_version: ${{ needs.versioning.outputs.version }}
       framework: "net6.0"
   deploy:
     if: ${{ github.ref_name == 'develop' || github.ref_name == 'sourcerarr' }}

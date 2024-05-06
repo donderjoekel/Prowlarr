@@ -19,13 +19,17 @@ on:
         description: 'The dotnet version to use'
         type: string
         required: true
+      release_version:
+        description: 'The release version'
+        type: string
+        required: true
       artifact_name:
         description: 'The name of the artifact to publish'
         type: string
         required: true
 
 jobs:
-  build:
+  run:
     runs-on: ${{ inputs.os }}
     steps:
     - name: Check out
@@ -53,5 +57,6 @@ jobs:
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: release_${{ inputs.artifact_name }}
+        # name: release_${{ inputs.artifact_name }}
+        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.artifact_name }}
         path: _artifacts/

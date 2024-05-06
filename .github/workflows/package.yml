@@ -54,6 +54,10 @@ jobs:
         FRAMEWORK: ${{ inputs.framework }}
       shell: bash
       run: ./build.sh --packages
+    - name: Log root
+      run: |
+        cd /
+        ls -la
     - name: Create linux archive
       if: ${{ inputs.build_target }} == 'linux-x64'
       run: |

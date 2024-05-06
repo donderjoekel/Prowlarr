@@ -92,15 +92,15 @@ jobs:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
-            artifact_extension: .tar.gz
+            artifact_extension: tar.gz
           - os: macos-latest
             build_target: osx-x64
             artifact_name: osx
-            artifact_extension: .tar.gz
+            artifact_extension: tar.gz
           # - os: windows-latest
           #   build_target: win-x64
           #   artifact_name: win
-          #   artifact_extension: .zip
+          #   artifact_extension: zip
     secrets: inherit
     uses: ./.github/workflows/package.yml
     with:

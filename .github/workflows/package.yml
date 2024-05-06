@@ -57,13 +57,13 @@ jobs:
     - name: Create linux archive
       if: ${{ inputs.build_target }} == 'linux-x64'
       run: |
-        tar -cvf _artifacts/Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.tar _artifacts/linux-x64/net6.0/
+        tar -cvzf _artifacts/Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.tar.gz _artifacts/linux-x64/net6.0/
         rm -r _artifacts/linux-x64
     - name: Publish Artifact
       uses: actions/upload-artifact@v4
       with:
         # name: release_${{ inputs.artifact_name }}
-        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}
+        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.tar.gz
         if-no-files-found: error
         path: |
           _artifacts/*.tar.gz

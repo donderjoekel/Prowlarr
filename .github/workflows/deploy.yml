@@ -63,7 +63,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: _artifacts
-        pattern: release_*
+        pattern: Prowlarr.*
         merge-multiple: true
 
     - name: Get Previous Release

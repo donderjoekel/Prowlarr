@@ -43,11 +43,17 @@ jobs:
     needs: [versioning]
     strategy:
       matrix:
-        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
+          - os: macos-latest
+            build_target: osx-x64
+            artifact_name: osx
+          - os: windows-latest
+            build_target: windows-x64
+            artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/backend.yml
     with:
@@ -60,10 +66,17 @@ jobs:
     needs: [versioning]
     strategy:
       matrix:
-        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
+            build_target: linux-x64
             artifact_name: linux
+          - os: macos-latest
+            build_target: osx-x64
+            artifact_name: osx
+          - os: windows-latest
+            build_target: windows-x64
+            artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/frontend.yml
     with:
@@ -74,11 +87,17 @@ jobs:
     needs: [versioning, backend, frontend]
     strategy:
       matrix:
-        os: [ubuntu-latest] #, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             build_target: linux-x64
             artifact_name: linux
+          - os: macos-latest
+            build_target: osx-x64
+            artifact_name: osx
+          - os: windows-latest
+            build_target: windows-x64
+            artifact_name: win
     secrets: inherit
     uses: ./.github/workflows/package.yml
     with:

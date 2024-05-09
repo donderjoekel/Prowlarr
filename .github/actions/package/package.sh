@@ -29,27 +29,27 @@ do
   find $prowlarrFolder -name "Prowlarr" -exec chmod a+x {} \;
   find $prowlarrFolder -name "Prowlarr.Update" -exec chmod a+x {} \;
   
-  if [[ "$name" == *"osx"* ]]; then
-    echo "Creating macOS package"
+  # if [[ "$name" == *"osx"* ]]; then
+  #   echo "Creating macOS package"
       
-    packageName="$name-app"
-    packageFolder="$outputFolder/$packageName"
+  #   packageName="$name-app"
+  #   packageFolder="$outputFolder/$packageName"
       
-    rm -rf $packageFolder
-    mkdir $packageFolder
+  #   rm -rf $packageFolder
+  #   mkdir $packageFolder
       
-    cp -r distribution/macOS/Prowlarr.app $packageFolder
-    mkdir -p $packageFolder/Prowlarr.app/Contents/MacOS
+  #   cp -r distribution/macOS/Prowlarr.app $packageFolder
+  #   mkdir -p $packageFolder/Prowlarr.app/Contents/MacOS
       
-    echo "Copying Binaries"
-    cp -r $prowlarrFolder/* $packageFolder/Prowlarr.app/Contents/MacOS
+  #   echo "Copying Binaries"
+  #   cp -r $prowlarrFolder/* $packageFolder/Prowlarr.app/Contents/MacOS
       
-    echo "Removing Update Folder"
-    rm -r $packageFolder/Prowlarr.app/Contents/MacOS/Prowlarr.Update
+  #   echo "Removing Update Folder"
+  #   rm -r $packageFolder/Prowlarr.app/Contents/MacOS/Prowlarr.Update
               
-    echo "Packaging macOS app Artifact"
-    (cd $packageFolder; zip -rq "../../$artifactsFolder/$archiveName-app.zip" ./Prowlarr.app)
-  fi
+  #   echo "Packaging macOS app Artifact"
+  #   (cd $packageFolder; zip -rq "../../$artifactsFolder/$archiveName-app.zip" ./Prowlarr.app)
+  # fi
 
   echo "Packaging Artifact"
   if [[ "$name" == *"linux"* ]] || [[ "$name" == *"osx"* ]] || [[ "$name" == *"freebsd"* ]]; then

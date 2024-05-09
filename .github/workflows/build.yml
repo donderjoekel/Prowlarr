@@ -77,11 +77,11 @@ jobs:
         framework: ${{ env.FRAMEWORK }}
         runtime: linux-x64
 
-    - name: Publish osx-x64 Test Artifact
-      uses: ./.github/actions/publish-test-artifact
-      with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: osx-x64
+    # - name: Publish osx-x64 Test Artifact
+    #   uses: ./.github/actions/publish-test-artifact
+    #   with:
+    #     framework: ${{ env.FRAMEWORK }}
+    #     runtime: osx-x64
 
     # Build Artifacts (grouped by OS)
     
@@ -95,11 +95,11 @@ jobs:
       with:
         name: build_linux
         path: _artifacts/linux-*/**/*
-    - name: Publish macOS Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_macos
-        path: _artifacts/osx-*/**/*
+    # - name: Publish macOS Artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: build_macos
+    #     path: _artifacts/osx-*/**/*
     - name: Publish Windows Artifact
       uses: actions/upload-artifact@v4
       with:

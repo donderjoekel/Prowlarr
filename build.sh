@@ -24,7 +24,6 @@ UpdateVersionNumber()
         echo "Updating version info to: $PROWLARR_VERSION"
         sed -i'' -e "s/<AssemblyVersion>[0-9.*]\+<\/AssemblyVersion>/<AssemblyVersion>$PROWLARR_VERSION<\/AssemblyVersion>/g" src/Directory.Build.props
         sed -i'' -e "s/<AssemblyConfiguration>[\$()A-Za-z-]\+<\/AssemblyConfiguration>/<AssemblyConfiguration>${BRANCH}<\/AssemblyConfiguration>/g" src/Directory.Build.props
-        sed -i'' -e "s/<string>10.0.0.0<\/string>/<string>$PROWLARR_VERSION<\/string>/g" distribution/macOS/Prowlarr.app/Contents/Info.plist
     fi
 }
 
@@ -35,7 +34,7 @@ EnableExtraPlatformsInSDK()
         echo "Extra platforms already enabled"
     else
         echo "Enabling extra platform support"
-        sed -i.ORI 's/osx-x64/osx-x64;freebsd-x64/' "$BUNDLEDVERSIONS"
+        sed -i.ORI 's/freebsd-x64/' "$BUNDLEDVERSIONS"
     fi
 }
 
@@ -147,56 +146,56 @@ PackageLinux()
     ProgressEnd "Creating $runtime Package for $framework"
 }
 
-PackageMacOS()
-{
-    local framework="$1"
-    local runtime="$2"
+# PackageMacOS()
+# {
+#     local framework="$1"
+#     local runtime="$2"
 
-    ProgressStart "Creating $runtime Package for $framework"
+#     ProgressStart "Creating $runtime Package for $framework"
 
-    local folder=$artifactsFolder/$runtime/$framework/Prowlarr
+#     local folder=$artifactsFolder/$runtime/$framework/Prowlarr
 
-    PackageFiles "$folder" "$framework" "$runtime"
+#     PackageFiles "$folder" "$framework" "$runtime"
 
-    echo "Removing Service helpers"
-    rm -f $folder/ServiceUninstall.*
-    rm -f $folder/ServiceInstall.*
+#     echo "Removing Service helpers"
+#     rm -f $folder/ServiceUninstall.*
+#     rm -f $folder/ServiceInstall.*
 
-    echo "Removing Prowlarr.Windows"
-    rm $folder/Prowlarr.Windows.*
+#     echo "Removing Prowlarr.Windows"
+#     rm $folder/Prowlarr.Windows.*
 
-    echo "Adding Prowlarr.Mono to UpdatePackage"
-    cp $folder/Prowlarr.Mono.* $folder/Prowlarr.Update
-    if [ "$framework" = "$framework" ]; then
-        cp $folder/Mono.Posix.NETStandard.* $folder/Prowlarr.Update
-        cp $folder/libMonoPosixHelper.* $folder/Prowlarr.Update
-    fi
+#     echo "Adding Prowlarr.Mono to UpdatePackage"
+#     cp $folder/Prowlarr.Mono.* $folder/Prowlarr.Update
+#     if [ "$framework" = "$framework" ]; then
+#         cp $folder/Mono.Posix.NETStandard.* $folder/Prowlarr.Update
+#         cp $folder/libMonoPosixHelper.* $folder/Prowlarr.Update
+#     fi
 
-    ProgressEnd "Creating $runtime Package for $framework"
-}
+#     ProgressEnd "Creating $runtime Package for $framework"
+# }
 
-PackageMacOSApp()
-{
-    local framework="$1"
-    local runtime="$2"
+# PackageMacOSApp()
+# {
+#     local framework="$1"
+#     local runtime="$2"
 
-    ProgressStart "Creating $runtime App Package for $framework"
+#     ProgressStart "Creating $runtime App Package for $framework"
 
-    local folder=$artifactsFolder/$runtime-app/$framework
+#     local folder=$artifactsFolder/$runtime-app/$framework
 
-    rm -rf $folder
-    mkdir -p $folder
-    cp -r distribution/macOS/Prowlarr.app $folder
-    mkdir -p $folder/Prowlarr.app/Contents/MacOS
+#     rm -rf $folder
+#     mkdir -p $folder
+#     cp -r distribution/macOS/Prowlarr.app $folder
+#     mkdir -p $folder/Prowlarr.app/Contents/MacOS
 
-    echo "Copying Binaries"
-    cp -r $artifactsFolder/$runtime/$framework/Prowlarr/* $folder/Prowlarr.app/Contents/MacOS
+#     echo "Copying Binaries"
+#     cp -r $artifactsFolder/$runtime/$framework/Prowlarr/* $folder/Prowlarr.app/Contents/MacOS
 
-    echo "Removing Update Folder"
-    rm -r $folder/Prowlarr.app/Contents/MacOS/Prowlarr.Update
+#     echo "Removing Update Folder"
+#     rm -r $folder/Prowlarr.app/Contents/MacOS/Prowlarr.Update
 
-    ProgressEnd "Creating $runtime App Package for $framework"
-}
+#     ProgressEnd "Creating $runtime App Package for $framework"
+# }
 
 PackageWindows()
 {
@@ -235,9 +234,6 @@ Package()
             ;;
         win)
             PackageWindows "$framework" "$runtime"
-            ;;
-        osx)
-            PackageMacOS "$framework" "$runtime"
             ;;
     esac
 }
@@ -403,7 +399,6 @@ then
         PackageTests "$framework" "win-x86"
         PackageTests "$framework" "linux-x64"
         PackageTests "$framework" "linux-musl-x64"
-        PackageTests "$framework" "osx-x64"
         if [ "$ENABLE_EXTRA_PLATFORMS" = "YES" ];
         then
             PackageTests "$framework" "freebsd-x64"
@@ -441,8 +436,6 @@ then
         Package "$framework" "linux-arm64"
         Package "$framework" "linux-musl-arm64"
         Package "$framework" "linux-arm"
-        Package "$framework" "osx-x64"
-        Package "$framework" "osx-arm64"
         if [ "$ENABLE_EXTRA_PLATFORMS" = "YES" ];
         then
             Package "$framework" "freebsd-x64"

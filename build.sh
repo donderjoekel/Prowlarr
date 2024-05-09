@@ -4,43 +4,45 @@ set -e
 outputFolder='_output'
 testPackageFolder='_tests'
 artifactsFolder="_artifacts";
+framework="${FRAMEWORK:=net6.0}"
 
 ProgressStart()
 {
+    echo "::group::$1"
     echo "Start '$1'"
 }
 
 ProgressEnd()
 {
     echo "Finish '$1'"
+    echo "::endgroup::"
 }
 
 UpdateVersionNumber()
 {
-    if [ "$PROWLARRVERSION" != "" ]; then
-        echo "Updating Version Info"
-        sed -i'' -e "s/<AssemblyVersion>[0-9.*]\+<\/AssemblyVersion>/<AssemblyVersion>$PROWLARRVERSION<\/AssemblyVersion>/g" src/Directory.Build.props
-        sed -i'' -e "s/<AssemblyConfiguration>[\$()A-Za-z-]\+<\/AssemblyConfiguration>/<AssemblyConfiguration>${BUILD_SOURCEBRANCHNAME}<\/AssemblyConfiguration>/g" src/Directory.Build.props
-        sed -i'' -e "s/<string>10.0.0.0<\/string>/<string>$PROWLARRVERSION<\/string>/g" distribution/osx/Prowlarr.app/Contents/Info.plist
+    if [ "$PROWLARR_VERSION" != "" ]; then
+        echo "Updating version info to: $PROWLARR_VERSION"
+        sed -i'' -e "s/<AssemblyVersion>[0-9.*]\+<\/AssemblyVersion>/<AssemblyVersion>$PROWLARR_VERSION<\/AssemblyVersion>/g" src/Directory.Build.props
+        sed -i'' -e "s/<AssemblyConfiguration>[\$()A-Za-z-]\+<\/AssemblyConfiguration>/<AssemblyConfiguration>${BRANCH}<\/AssemblyConfiguration>/g" src/Directory.Build.props
+        sed -i'' -e "s/<string>10.0.0.0<\/string>/<string>$PROWLARR_VERSION<\/string>/g" distribution/macOS/Prowlarr.app/Contents/Info.plist
     fi
 }
 
 EnableExtraPlatformsInSDK()
 {
-    SDK_PATH=$(dotnet --list-sdks | grep -P '6\.\d\.\d+' | head -1 | sed 's/\(6\.[0-9]*\.[0-9]*\).*\[\(.*\)\]/\2\/\1/g')
-    BUNDLEDVERSIONS="${MSBuildSDKsPath}/Microsoft.NETCoreSdk.BundledVersions.props"
-    if grep -q freebsd-x64 $BUNDLEDVERSIONS; then
+    BUNDLEDVERSIONS="${SDK_PATH}/Microsoft.NETCoreSdk.BundledVersions.props"
+    if grep -q freebsd-x64 "$BUNDLEDVERSIONS"; then
         echo "Extra platforms already enabled"
     else
         echo "Enabling extra platform support"
-        sed -i.ORI 's/osx-x64/osx-x64;freebsd-x64;linux-x86/' $BUNDLEDVERSIONS
+        sed -i.ORI 's/osx-x64/osx-x64;freebsd-x64/' "$BUNDLEDVERSIONS"
     fi
 }
 
 EnableExtraPlatforms()
 {
     if grep -qv freebsd-x64 src/Directory.Build.props; then
-        sed -i'' -e "s^<RuntimeIdentifiers>\(.*\)</RuntimeIdentifiers>^<RuntimeIdentifiers>\1;freebsd-x64;linux-x86</RuntimeIdentifiers>^g" src/Directory.Build.props
+        sed -i'' -e "s^<RuntimeIdentifiers>\(.*\)</RuntimeIdentifiers>^<RuntimeIdentifiers>\1;freebsd-x64</RuntimeIdentifiers>^g" src/Directory.Build.props
     fi
 }
 
@@ -51,11 +53,7 @@ LintUI()
     ProgressEnd 'ESLint'
 
     ProgressStart 'Stylelint'
-    if [ "$os" = "windows" ]; then
-        yarn stylelint-windows
-    else
-        yarn stylelint-linux
-    fi
+    yarn stylelint
     ProgressEnd 'Stylelint'
 }
 
@@ -111,10 +109,14 @@ PackageFiles()
     mkdir -p $folder
     cp -r $outputFolder/$framework/$runtime/publish/* $folder
     cp -r $outputFolder/Prowlarr.Update/$framework/$runtime/publish $folder/Prowlarr.Update
-    cp -r $outputFolder/UI $folder
+    
+    if [ "$FRONTEND" = "YES" ];
+    then
+        cp -r $outputFolder/UI $folder
+    fi
 
     echo "Adding LICENSE"
-    cp LICENSE $folder
+    cp LICENSE.md $folder
 }
 
 PackageLinux()
@@ -137,7 +139,7 @@ PackageLinux()
 
     echo "Adding Prowlarr.Mono to UpdatePackage"
     cp $folder/Prowlarr.Mono.* $folder/Prowlarr.Update
-    if [ "$framework" = "net6.0" ]; then
+    if [ "$framework" = "$framework" ]; then
         cp $folder/Mono.Posix.NETStandard.* $folder/Prowlarr.Update
         cp $folder/libMonoPosixHelper.* $folder/Prowlarr.Update
     fi
@@ -149,8 +151,8 @@ PackageMacOS()
 {
     local framework="$1"
     local runtime="$2"
-    
-    ProgressStart "Creating MacOS Package for $framework $runtime"
+
+    ProgressStart "Creating $runtime Package for $framework"
 
     local folder=$artifactsFolder/$runtime/$framework/Prowlarr
 
@@ -165,26 +167,26 @@ PackageMacOS()
 
     echo "Adding Prowlarr.Mono to UpdatePackage"
     cp $folder/Prowlarr.Mono.* $folder/Prowlarr.Update
-    if [ "$framework" = "net6.0" ]; then
+    if [ "$framework" = "$framework" ]; then
         cp $folder/Mono.Posix.NETStandard.* $folder/Prowlarr.Update
         cp $folder/libMonoPosixHelper.* $folder/Prowlarr.Update
     fi
 
-    ProgressEnd 'Creating MacOS Package'
+    ProgressEnd "Creating $runtime Package for $framework"
 }
 
 PackageMacOSApp()
 {
     local framework="$1"
     local runtime="$2"
-    
-    ProgressStart "Creating macOS App Package for $framework $runtime"
 
-    local folder="$artifactsFolder/$runtime-app/$framework"
+    ProgressStart "Creating $runtime App Package for $framework"
+
+    local folder=$artifactsFolder/$runtime-app/$framework
 
     rm -rf $folder
     mkdir -p $folder
-    cp -r distribution/osx/Prowlarr.app $folder
+    cp -r distribution/macOS/Prowlarr.app $folder
     mkdir -p $folder/Prowlarr.app/Contents/MacOS
 
     echo "Copying Binaries"
@@ -193,18 +195,18 @@ PackageMacOSApp()
     echo "Removing Update Folder"
     rm -r $folder/Prowlarr.app/Contents/MacOS/Prowlarr.Update
 
-    ProgressEnd 'Creating macOS App Package'
+    ProgressEnd "Creating $runtime App Package for $framework"
 }
 
 PackageWindows()
 {
     local framework="$1"
     local runtime="$2"
-    
+
     ProgressStart "Creating Windows Package for $framework"
 
     local folder=$artifactsFolder/$runtime/$framework/Prowlarr
-    
+
     PackageFiles "$folder" "$framework" "$runtime"
     cp -r $outputFolder/$framework-windows/$runtime/publish/* $folder
 
@@ -216,7 +218,7 @@ PackageWindows()
     echo "Adding Prowlarr.Windows to UpdatePackage"
     cp $folder/Prowlarr.Windows.* $folder/Prowlarr.Update
 
-    ProgressEnd 'Creating Windows Package'
+    ProgressEnd "Creating Windows Package for $framework"
 }
 
 Package()
@@ -236,35 +238,8 @@ Package()
             ;;
         osx)
             PackageMacOS "$framework" "$runtime"
-            PackageMacOSApp "$framework" "$runtime"
             ;;
     esac
-}
-
-BuildInstaller()
-{
-    local framework="$1"
-    local runtime="$2"
-    
-    ./_inno/ISCC.exe distribution/windows/setup/prowlarr.iss "//DFramework=$framework" "//DRuntime=$runtime"
-}
-
-InstallInno()
-{
-    ProgressStart "Installing portable Inno Setup"
-    
-    rm -rf _inno
-    curl -s --output innosetup.exe "https://files.jrsoftware.org/is/6/innosetup-${INNOVERSION:-6.2.2}.exe"
-    mkdir _inno
-    ./innosetup.exe //portable=1 //silent //currentuser //dir=.\\_inno
-    rm innosetup.exe
-    
-    ProgressEnd "Installed portable Inno Setup"
-}
-
-RemoveInno()
-{
-    rm -rf _inno
 }
 
 PackageTests()
@@ -272,11 +247,61 @@ PackageTests()
     local framework="$1"
     local runtime="$2"
 
+    ProgressStart "Creating $runtime Test Package for $framework"
+
     cp test.sh "$testPackageFolder/$framework/$runtime/publish"
 
     rm -f $testPackageFolder/$framework/$runtime/*.log.config
 
-    ProgressEnd 'Creating Test Package'
+    ProgressEnd "Creating $runtime Test Package for $framework"
+}
+
+UploadTestArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing Test Artifacts'
+
+    # Tests
+    for dir in $testPackageFolder/$framework/*
+    do
+        local runtime=$(basename "$dir")
+        echo "##teamcity[publishArtifacts '$testPackageFolder/$framework/$runtime/publish/** => tests.$runtime.zip']"
+    done
+
+    ProgressEnd 'Publishing Test Artifacts'
+}
+
+UploadArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing Artifacts'
+
+    # Releases
+    for dir in $artifactsFolder/*
+    do
+        local runtime=$(basename "$dir")
+
+        echo "##teamcity[publishArtifacts '$artifactsFolder/$runtime/$framework/** => Prowlarr.$BRANCH.$PROWLARR_VERSION.$runtime.zip']"
+    done
+
+    # Debian Package / Windows installer / macOS app
+    echo "##teamcity[publishArtifacts 'distribution/** => distribution.zip']"
+
+    ProgressEnd 'Publishing Artifacts'
+}
+
+UploadUIArtifacts()
+{
+    local framework="$1"
+
+    ProgressStart 'Publishing UI Artifacts'
+
+    # UI folder
+    echo "##teamcity[publishArtifacts '$outputFolder/UI/** => UI.zip']"
+
+    ProgressEnd 'Publishing UI Artifacts'
 }
 
 # Use mono or .net depending on OS
@@ -298,7 +323,6 @@ if [ $# -eq 0 ]; then
     BACKEND=YES
     FRONTEND=YES
     PACKAGES=YES
-    INSTALLER=NO
     LINT=YES
     ENABLE_EXTRA_PLATFORMS=NO
     ENABLE_EXTRA_PLATFORMS_IN_SDK=NO
@@ -339,10 +363,6 @@ case $key in
         PACKAGES=YES
         shift # past argument
         ;;
-    --installer)
-        INSTALLER=YES
-        shift # past argument
-        ;;
     --lint)
         LINT=YES
         shift # past argument
@@ -374,37 +394,38 @@ then
     then
         EnableExtraPlatforms
     fi
+
     Build
+
     if [[ -z "$RID" || -z "$FRAMEWORK" ]];
     then
-        PackageTests "net6.0" "win-x64"
-        PackageTests "net6.0" "win-x86"
-        PackageTests "net6.0" "linux-x64"
-        PackageTests "net6.0" "linux-musl-x64"
-        PackageTests "net6.0" "osx-x64"
+        PackageTests "$framework" "win-x64"
+        PackageTests "$framework" "win-x86"
+        PackageTests "$framework" "linux-x64"
+        PackageTests "$framework" "linux-musl-x64"
+        PackageTests "$framework" "osx-x64"
         if [ "$ENABLE_EXTRA_PLATFORMS" = "YES" ];
         then
-            PackageTests "net6.0" "freebsd-x64"
-            PackageTests "net6.0" "linux-x86"
+            PackageTests "$framework" "freebsd-x64"
         fi
     else
         PackageTests "$FRAMEWORK" "$RID"
     fi
-fi
 
-if [[ "$LINT" = "YES" || "$FRONTEND" = "YES" ]];
-then
-    YarnInstall
-fi
-
-if [ "$LINT" = "YES" ];
-then
-    LintUI
+    UploadTestArtifacts "$framework"
 fi
 
 if [ "$FRONTEND" = "YES" ];
 then
+    YarnInstall
+
+    if [ "$LINT" = "YES" ];
+    then
+        LintUI
+    fi
+
     RunWebpack
+    UploadUIArtifacts
 fi
 
 if [ "$PACKAGES" = "YES" ];
@@ -413,30 +434,22 @@ then
 
     if [[ -z "$RID" || -z "$FRAMEWORK" ]];
     then
-        Package "net6.0" "win-x64"
-        Package "net6.0" "win-x86"
-        Package "net6.0" "linux-x64"
-        Package "net6.0" "linux-musl-x64"
-        Package "net6.0" "linux-arm64"
-        Package "net6.0" "linux-musl-arm64"
-        Package "net6.0" "linux-arm"
-        Package "net6.0" "linux-musl-arm"
-        Package "net6.0" "osx-x64"
-        Package "net6.0" "osx-arm64"
+        Package "$framework" "win-x64"
+        Package "$framework" "win-x86"
+        Package "$framework" "linux-x64"
+        Package "$framework" "linux-musl-x64"
+        Package "$framework" "linux-arm64"
+        Package "$framework" "linux-musl-arm64"
+        Package "$framework" "linux-arm"
+        Package "$framework" "osx-x64"
+        Package "$framework" "osx-arm64"
         if [ "$ENABLE_EXTRA_PLATFORMS" = "YES" ];
         then
-            Package "net6.0" "freebsd-x64"
-            Package "net6.0" "linux-x86"
+            Package "$framework" "freebsd-x64"
         fi
     else
         Package "$FRAMEWORK" "$RID"
     fi
-fi
 
-if [ "$INSTALLER" = "YES" ];
-then
-    InstallInno
-    BuildInstaller "net6.0" "win-x64"
-    BuildInstaller "net6.0" "win-x86"
-    RemoveInno
+    UploadArtifacts "$framework"
 fi

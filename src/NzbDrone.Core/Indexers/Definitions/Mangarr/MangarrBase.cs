@@ -76,7 +76,7 @@ public abstract class MangarrBase<TRequestGenerator, TResponseParser, TSettings>
         var parser = (TResponseParser)GetParser();
         var chapterImageLinks = parser.ParseChapterResponse(content);
         var files = new MultiFileInfoList();
-        files.AddRange(chapterImageLinks.Select(ValidateUrl).Select(x => new MultiFileInfo() { FullPath = x, FileSize = 1 }));
+        files.AddRange(chapterImageLinks.Select(ConvertUrl).Select(x => new MultiFileInfo() { FullPath = x, FileSize = 1 }));
         var torrent = new Torrent
         {
             ExtraFields = new BDictionary(),
@@ -90,21 +90,10 @@ public abstract class MangarrBase<TRequestGenerator, TResponseParser, TSettings>
         return stream.ToArray();
     }
 
-    private string ValidateUrl(string url)
+    private string ConvertUrl(string url)
     {
-        if (url.StartsWith("https:/") && !url.StartsWith("https://"))
-        {
-            _logger.Warn("Fixing URL: {Url}", url);
-            url = url.Replace("https:/", "https://");
-        }
-
-        if (url.StartsWith("http:/") && !url.StartsWith("http://"))
-        {
-            _logger.Warn("Fixing URL: {Url}", url);
-            url = url.Replace("http:/", "http://");
-        }
-
-        return url;
+        // Return url as base64 encoded string
+        return Convert.ToBase64String(Encoding.GetBytes(url));
     }
 
     protected override void ValidateDownloadData(byte[] fileData)

@@ -85,6 +85,9 @@ namespace NzbDrone.Core.Indexers
         public static readonly IndexerCategory BooksTechnical = new (7040, "Books/Technical");
         public static readonly IndexerCategory BooksOther = new (7050, "Books/Other");
         public static readonly IndexerCategory BooksForeign = new (7060, "Books/Foreign");
+        public static readonly IndexerCategory BooksManga = new (7070, "Books/Manga");
+        public static readonly IndexerCategory BooksManhua = new (7080, "Books/Manhua");
+        public static readonly IndexerCategory BooksManhwa = new (7090, "Books/Manhwa");
 
         public static readonly IndexerCategory Other = new (8000, "Other");
         public static readonly IndexerCategory OtherMisc = new (8010, "Other/Misc");
@@ -175,6 +178,9 @@ namespace NzbDrone.Core.Indexers
             BooksTechnical,
             BooksOther,
             BooksForeign,
+            BooksManga,
+            BooksManhua,
+            BooksManhwa,
             Other,
             OtherMisc,
             OtherHashed,
@@ -275,7 +281,10 @@ namespace NzbDrone.Core.Indexers
                     BooksComics,
                     BooksTechnical,
                     BooksOther,
-                    BooksForeign
+                    BooksForeign,
+                    BooksManga,
+                    BooksManhua,
+                    BooksManhwa
                 });
             Other.SubCategories.AddRange(new List<IndexerCategory> { OtherMisc, OtherHashed });
         }

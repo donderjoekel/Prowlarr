@@ -65,11 +65,11 @@ jobs:
 
     # Test Artifacts
 
-    - name: Publish win-x64 Test Artifact
-      uses: ./.github/actions/publish-test-artifact
-      with:
-        framework: ${{ env.FRAMEWORK }}
-        runtime: win-x64
+    # - name: Publish win-x64 Test Artifact
+    #   uses: ./.github/actions/publish-test-artifact
+    #   with:
+    #     framework: ${{ env.FRAMEWORK }}
+    #     runtime: win-x64
 
     - name: Publish linux-x64 Test Artifact
       uses: ./.github/actions/publish-test-artifact
@@ -100,11 +100,11 @@ jobs:
     #   with:
     #     name: build_macos
     #     path: _artifacts/osx-*/**/*
-    - name: Publish Windows Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: build_windows
-        path: _artifacts/win-*/**/*
+    # - name: Publish Windows Artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: build_windows
+    #     path: _artifacts/win-*/**/*
 
   frontend:
     runs-on: ubuntu-latest

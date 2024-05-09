@@ -34,7 +34,7 @@ EnableExtraPlatformsInSDK()
         echo "Extra platforms already enabled"
     else
         echo "Enabling extra platform support"
-        sed -i.ORI 's/freebsd-x64;/' "$BUNDLEDVERSIONS"
+        sed -i.ORI 's/osx-x64/osx-x64;freebsd-x64/' "$BUNDLEDVERSIONS"
     fi
 }
 

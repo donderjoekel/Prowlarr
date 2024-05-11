@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using NzbDrone.Common.Http;
 using NzbDrone.Core.Parser.Model;
@@ -84,24 +85,44 @@ public abstract class MangarrResponseParser : IMangarrParseIndexerResponse
         return ChapterRegex.Match(chapter).Groups[1].Value.Trim();
     }
 
-    protected TorrentInfo CreateTorrentInfo(string url, string title, int chapterNumber, DateTime parsedDate)
+    protected TorrentInfo CreateTorrentInfo(string url,
+        string title,
+        int chapterNumber,
+        DateTime parsedDate,
+        params IndexerCategory[] categories)
     {
-        return CreateTorrentInfo(url, title, chapterNumber.ToString(NumberFormatInfo.InvariantInfo), parsedDate);
+        return CreateTorrentInfo(url,
+            title,
+            chapterNumber.ToString(NumberFormatInfo.InvariantInfo),
+            parsedDate,
+            categories);
     }
 
-    protected TorrentInfo CreateTorrentInfo(string url, string title, double chapterNumber, DateTime parsedDate)
+    protected TorrentInfo CreateTorrentInfo(string url,
+        string title,
+        double chapterNumber,
+        DateTime parsedDate,
+        params IndexerCategory[] categories)
     {
-        return CreateTorrentInfo(url, title, chapterNumber.ToString(NumberFormatInfo.InvariantInfo), parsedDate);
+        return CreateTorrentInfo(url,
+            title,
+            chapterNumber.ToString(NumberFormatInfo.InvariantInfo),
+            parsedDate,
+            categories);
     }
 
-    protected TorrentInfo CreateTorrentInfo(string url, string title, string chapterNumber, DateTime parsedDate)
+    protected TorrentInfo CreateTorrentInfo(string url,
+        string title,
+        string chapterNumber,
+        DateTime parsedDate,
+        params IndexerCategory[] categories)
     {
         return new TorrentInfo
         {
             Title = $"[{_providerDefinition.Name}] {title} - S01E{chapterNumber}",
             PublishDate = parsedDate,
             DownloadUrl = url,
-            Categories = new List<IndexerCategory> { NewznabStandardCategory.TV },
+            Categories = categories?.ToList() ?? new List<IndexerCategory> { NewznabStandardCategory.Books },
             Guid = url,
             Size = 1,
             Files = 1,

@@ -64,9 +64,27 @@ public abstract class MangarrBase<TRequestGenerator, TResponseParser, TSettings>
             },
         };
 
-        caps.Categories.AddCategoryMapping(1, NewznabStandardCategory.TV, "TV");
+        var categories = GetCategories().ToList();
+
+        if (!categories.Any())
+        {
+            throw new Exception("No categories defined for indexer");
+        }
+
+        foreach (var category in categories)
+        {
+            caps.Categories.AddCategoryMapping("Books", category, category.Name);
+        }
 
         return caps;
+    }
+
+    protected virtual IEnumerable<IndexerCategory> GetCategories()
+    {
+        return new List<IndexerCategory>
+        {
+            NewznabStandardCategory.Books
+        };
     }
 
     public sealed override async Task<byte[]> Download(Uri link)

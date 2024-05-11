@@ -10,14 +10,12 @@ namespace Prowlarr.Api.V1.Indexers
         public IndexerController(IndexerFactory indexerFactory,
             IndexerResourceMapper resourceMapper,
             IndexerBulkResourceMapper bulkResourceMapper,
-            AppProfileExistsValidator appProfileExistsValidator,
-            DownloadClientExistsValidator downloadClientExistsValidator)
+            AppProfileExistsValidator appProfileExistsValidator)
             : base(indexerFactory, "indexer", resourceMapper, bulkResourceMapper)
         {
             Http.Validation.RuleBuilderExtensions.ValidId(SharedValidator.RuleFor(s => s.AppProfileId));
 
             SharedValidator.RuleFor(c => c.AppProfileId).SetValidator(appProfileExistsValidator);
-            SharedValidator.RuleFor(c => c.DownloadClientId).SetValidator(downloadClientExistsValidator);
         }
     }
 }

@@ -26,8 +26,6 @@ function EditIndexerModalContent(props) {
     isTesting,
     saveError,
     item,
-    hasUsenetDownloadClients,
-    hasTorrentDownloadClients,
     onInputChange,
     onFieldChange,
     onModalClose,
@@ -50,13 +48,10 @@ function EditIndexerModalContent(props) {
     appProfileId,
     tags,
     fields,
-    priority,
-    protocol,
-    downloadClientId
+    priority
   } = item;
 
   const indexerDisplayName = implementationName === definitionName ? implementationName : `${implementationName} (${definitionName})`;
-  const showDownloadClientInput = downloadClientId.value > 0 || protocol.value === 'usenet' && hasUsenetDownloadClients || protocol.value === 'torrent' && hasTorrentDownloadClients;
 
   return (
     <ModalContent onModalClose={onModalClose}>
@@ -162,25 +157,6 @@ function EditIndexerModalContent(props) {
                 />
               </FormGroup>
 
-              {showDownloadClientInput ?
-                <FormGroup
-                  advancedSettings={advancedSettings}
-                  isAdvanced={true}
-                >
-                  <FormLabel>{translate('DownloadClient')}</FormLabel>
-
-                  <FormInputGroup
-                    type={inputTypes.DOWNLOAD_CLIENT_SELECT}
-                    name="downloadClientId"
-                    helpText={translate('IndexerDownloadClientHelpText')}
-                    {...downloadClientId}
-                    includeAny={true}
-                    protocol={protocol.value}
-                    onChange={onInputChange}
-                  />
-                </FormGroup> : null
-              }
-
               <FormGroup>
                 <FormLabel>{translate('Tags')}</FormLabel>
 
@@ -248,8 +224,6 @@ EditIndexerModalContent.propTypes = {
   isTesting: PropTypes.bool.isRequired,
   saveError: PropTypes.object,
   item: PropTypes.object.isRequired,
-  hasUsenetDownloadClients: PropTypes.bool.isRequired,
-  hasTorrentDownloadClients: PropTypes.bool.isRequired,
   onInputChange: PropTypes.func.isRequired,
   onFieldChange: PropTypes.func.isRequired,
   onModalClose: PropTypes.func.isRequired,

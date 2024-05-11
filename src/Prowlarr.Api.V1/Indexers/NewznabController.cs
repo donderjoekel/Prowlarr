@@ -255,13 +255,6 @@ namespace NzbDrone.Api.V1.Indexers
 
             var unprotectedlLink = _downloadMappingService.ConvertToNormalLink(link);
 
-            // If Indexer is set to download via Redirect then just redirect to the link
-            if (indexer.SupportsRedirect && indexerDef.Redirect)
-            {
-                _downloadService.RecordRedirect(unprotectedlLink, id, source, host, file);
-                return RedirectPermanent(unprotectedlLink);
-            }
-
             byte[] downloadBytes;
 
             try

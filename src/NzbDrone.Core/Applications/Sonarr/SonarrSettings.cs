@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FluentValidation;
 using NzbDrone.Core.Annotations;
@@ -13,6 +14,7 @@ namespace NzbDrone.Core.Applications.Sonarr
             RuleFor(c => c.BaseUrl).IsValidUrl();
             RuleFor(c => c.ProwlarrUrl).IsValidUrl();
             RuleFor(c => c.ApiKey).NotEmpty();
+            RuleFor(c => c.SyncCategories).NotEmpty();
         }
     }
 
@@ -24,8 +26,14 @@ namespace NzbDrone.Core.Applications.Sonarr
         {
             ProwlarrUrl = "http://localhost:9696";
             BaseUrl = "http://localhost:8989";
-            SyncCategories = new[] { 5000, 5010, 5020, 5030, 5040, 5045, 5050, 5090 };
-            AnimeSyncCategories = new[] { 5070 };
+            SyncCategories = new[]
+            {
+                NewznabStandardCategory.Books.Id,
+                NewznabStandardCategory.BooksManga.Id,
+                NewznabStandardCategory.BooksManhua.Id,
+                NewznabStandardCategory.BooksManhwa.Id
+            };
+            AnimeSyncCategories = Array.Empty<int>();
         }
 
         [FieldDefinition(0, Label = "Prowlarr Server", HelpText = "Prowlarr server URL as Mangarr sees it, including http(s)://, port, and urlbase if needed", Placeholder = "http://localhost:9696")]

@@ -5,7 +5,6 @@ import AppSectionState, {
 } from 'App/State/AppSectionState';
 import { IndexerCategory } from 'Indexer/Indexer';
 import Application from 'typings/Application';
-import DownloadClient from 'typings/DownloadClient';
 import Notification from 'typings/Notification';
 import { UiSettings } from 'typings/UiSettings';
 
@@ -21,11 +20,6 @@ export interface ApplicationAppState
   isTestingAll: boolean;
 }
 
-export interface DownloadClientAppState
-  extends AppSectionState<DownloadClient>,
-    AppSectionDeleteState,
-    AppSectionSaveState {}
-
 export interface IndexerCategoryAppState
   extends AppSectionState<IndexerCategory>,
     AppSectionDeleteState,
@@ -40,7 +34,6 @@ export type UiSettingsAppState = AppSectionItemState<UiSettings>;
 interface SettingsAppState {
   appProfiles: AppProfileAppState;
   applications: ApplicationAppState;
-  downloadClients: DownloadClientAppState;
   indexerCategories: IndexerCategoryAppState;
   notifications: NotificationAppState;
   ui: UiSettingsAppState;

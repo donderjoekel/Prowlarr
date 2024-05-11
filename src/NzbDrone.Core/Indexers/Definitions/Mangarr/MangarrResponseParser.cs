@@ -117,12 +117,20 @@ public abstract class MangarrResponseParser : IMangarrParseIndexerResponse
         DateTime parsedDate,
         params IndexerCategory[] categories)
     {
+        var cats = categories?.ToList() ?? new List<IndexerCategory>() { NewznabStandardCategory.Books };
+
+        // Fallback to Books category if no categories are provided
+        if (cats.Count == 0)
+        {
+            cats.Add(NewznabStandardCategory.Books);
+        }
+
         return new TorrentInfo
         {
             Title = $"[{_providerDefinition.Name}] {title} - S01E{chapterNumber}",
             PublishDate = parsedDate,
             DownloadUrl = url,
-            Categories = categories?.ToList() ?? new List<IndexerCategory> { NewznabStandardCategory.Books },
+            Categories = cats,
             Guid = url,
             Size = 1,
             Files = 1,

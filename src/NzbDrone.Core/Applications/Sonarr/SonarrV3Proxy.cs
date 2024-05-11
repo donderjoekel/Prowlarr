@@ -132,12 +132,12 @@ namespace NzbDrone.Core.Applications.Sonarr
 
             if (applicationVersion == null)
             {
-                return new ValidationFailure(string.Empty, "Failed to fetch Sonarr version");
+                return new ValidationFailure(string.Empty, "Failed to fetch Mangarr version");
             }
 
             if (new Version(applicationVersion) < MinimumApplicationVersion)
             {
-                return new ValidationFailure(string.Empty, $"Sonarr version should be at least {MinimumApplicationVersion.ToString(3)}. Version reported is {applicationVersion}", applicationVersion);
+                return new ValidationFailure(string.Empty, $"Mangarr version should be at least {MinimumApplicationVersion.ToString(3)}. Version reported is {applicationVersion}", applicationVersion);
             }
 
             return null;

@@ -1,0 +1,118 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - sourcerarr
+    paths-ignore:
+      - .github
+      - src/Prowlarr.Api.*/openapi.json
+  pull_request:
+    branches:
+      - develop
+    paths-ignore:
+      - .github
+      - src/NzbDrone.Core/Localization/Core
+      - src/Prowlarr.Api.*/openapi.json
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FRAMEWORK: net6.0
+  RAW_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  PROWLARR_MAJOR_VERSION: 0
+  VERSION: 0.1.0
+  NODE: '20.X'
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+    outputs:
+      prowlarr_version: ${{ steps.variables.outputs.prowlarr_version }}
+    steps:
+    - name: Set Version
+      id: variables
+      run: |
+        # Add 800 to the build number because GitHub won't let us pick an arbitrary starting point
+        echo "prowlarr_version=${{ env.VERSION }}.$((${{ github.run_number }}+800))" >> $GITHUB_OUTPUT
+  backend:
+    needs: [versioning]
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
+        include:
+          - os: ubuntu-latest
+            build_target: linux-x64
+            artifact_name: linux
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
+          # - os: windows-latest
+          #   build_target: win-x64
+          #   artifact_name: win
+    secrets: inherit
+    uses: ./.github/workflows/backend.yml
+    with:
+      os: ${{ matrix.os }}
+      build_target: ${{ matrix.build_target }}
+      artifact_name: ${{ matrix.artifact_name }}
+      dotnet_version: '6.0.421'
+      framework: "net6.0"
+  frontend:
+    needs: [versioning]
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
+        include:
+          - os: ubuntu-latest
+            build_target: linux-x64
+            artifact_name: linux
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
+          # - os: windows-latest
+          #   build_target: win-x64
+          #   artifact_name: win
+    secrets: inherit
+    uses: ./.github/workflows/frontend.yml
+    with:
+      os: ${{ matrix.os }}
+      node_version: '20.X'
+      artifact_name: ${{ matrix.artifact_name }}
+  package:
+    needs: [versioning, backend, frontend]
+    strategy:
+      matrix:
+        os: [ubuntu-latest] #, macos-latest] #, windows-latest]
+        include:
+          - os: ubuntu-latest
+            build_target: linux-x64
+            artifact_name: linux
+          # - os: macos-latest
+          #   build_target: osx-x64
+          #   artifact_name: osx
+          # - os: windows-latest
+          #   build_target: win-x64
+          #   artifact_name: win
+    secrets: inherit
+    uses: ./.github/workflows/package.yml
+    with:
+      os: ${{ matrix.os }}
+      build_target: ${{ matrix.build_target }}
+      artifact_name: ${{ matrix.artifact_name }}
+      dotnet_version: '6.0.421'
+      release_version: ${{ needs.versioning.outputs.prowlarr_version }}
+      framework: "net6.0"
+  deploy:
+    needs: [versioning, backend, frontend, package]
+    secrets: inherit
+    uses: ./.github/workflows/deploy.yml
+    with:
+      framework: "net6.0"
+      branch: ${{ github.ref_name }}
+      major_version: ${{ github.env.PROWLARR_MAJOR_VERSION }}
+      version: ${{ needs.versioning.outputs.prowlarr_version }}

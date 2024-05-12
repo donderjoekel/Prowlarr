@@ -1,7 +1,6 @@
 using System.Linq;
 using NLog;
 using NzbDrone.Core.Indexers;
-using NzbDrone.Core.Indexers.Definitions.Cardigann;
 using NzbDrone.Core.IndexerVersions;
 using NzbDrone.Core.Localization;
 using NzbDrone.Core.ThingiProvider.Events;
@@ -29,7 +28,7 @@ namespace NzbDrone.Core.HealthCheck.Checks
             var blocklist = _indexerDefinitionUpdateService.GetBlocklist();
 
             var oldIndexers = _indexerFactory.AllProviders(false)
-                    .Where(i => i.IsObsolete() || (i.Definition.Implementation == "Cardigann" && blocklist.Contains(((CardigannSettings)i.Definition.Settings).DefinitionFile))).ToList();
+                    .Where(i => i.IsObsolete()).ToList();
 
             if (oldIndexers.Count == 0)
             {

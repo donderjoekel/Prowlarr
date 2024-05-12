@@ -6,7 +6,7 @@ using NUnit.Framework;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Core.Datastore;
 using NzbDrone.Core.Datastore.Migration.Framework;
-using NzbDrone.Core.Indexers.Newznab;
+using NzbDrone.Core.Indexers;
 using NzbDrone.Test.Common;
 using NzbDrone.Test.Common.Datastore;
 
@@ -50,7 +50,7 @@ namespace NzbDrone.Integration.Test
         {
             WaitForCompletion(() => Tasks.All().SelectList(x => x.TaskName).Contains("CheckHealth"), 20000);
 
-            var indexer = Indexers.Schema().FirstOrDefault(i => i.Implementation == nameof(Newznab));
+            var indexer = Indexers.Schema().FirstOrDefault();
 
             if (indexer == null)
             {
@@ -58,10 +58,8 @@ namespace NzbDrone.Integration.Test
             }
 
             indexer.Enable = false;
-            indexer.ConfigContract = nameof(NewznabSettings);
-            indexer.Implementation = nameof(Newznab);
             indexer.Name = "NewznabTest";
-            indexer.Protocol = Core.Indexers.DownloadProtocol.Usenet;
+            indexer.Protocol = DownloadProtocol.Usenet;
             indexer.AppProfileId = 1;
 
             // Change Console Log Level to Debug so we get more details.

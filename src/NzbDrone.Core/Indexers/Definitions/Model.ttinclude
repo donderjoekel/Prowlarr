@@ -1,0 +1,18 @@
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#+
+    // features to be included to other t4 files
+    public abstract  class Model
+    {
+        public readonly string ClassName;
+        public readonly string Name;
+        public readonly string Url;
+
+        protected Model(string className, string name, string url)
+        {
+            ClassName = className;
+            Name = name;
+            Url = url.EndsWith("/") ? url : url + "/";
+        }
+    }
+#>

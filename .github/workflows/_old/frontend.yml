@@ -1,0 +1,38 @@
+name: Frontend
+
+on:
+  workflow_call:
+    inputs:
+      os: 
+        description: 'The OS to run on'
+        type: string
+        required: true
+      node_version:
+        description: 'The version of Node to use'
+        type: string
+        required: true
+      artifact_name:
+        description: 'The name of the artifact to publish'
+        type: string
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    steps:
+    - name: Check out
+      uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node_version }}
+    - name: Build Frontend
+      shell: bash
+      run: ./build.sh --frontend
+      env:
+        FORCE_COLOR: 0
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend_${{ inputs.artifact_name }}
+        path: _output/

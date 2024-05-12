@@ -8,7 +8,6 @@ using NzbDrone.Core.Authentication;
 using NzbDrone.Core.Configuration;
 using NzbDrone.Core.CustomFilters;
 using NzbDrone.Core.Datastore.Converters;
-using NzbDrone.Core.Download;
 using NzbDrone.Core.IndexerProxies;
 using NzbDrone.Core.Indexers;
 using NzbDrone.Core.IndexerVersions;
@@ -59,12 +58,6 @@ namespace NzbDrone.Core.Datastore
                   .Ignore(i => i.Capabilities)
                   .HasOne(a => a.AppProfile, a => a.AppProfileId);
 
-            Mapper.Entity<DownloadClientDefinition>("DownloadClients").RegisterModel()
-                  .Ignore(x => x.ImplementationName)
-                  .Ignore(d => d.SupportsCategories)
-                  .Ignore(d => d.Protocol)
-                  .Ignore(d => d.Tags);
-
             Mapper.Entity<NotificationDefinition>("Notifications").RegisterModel()
                   .Ignore(x => x.ImplementationName)
                   .Ignore(i => i.SupportsOnGrab)
@@ -91,7 +84,6 @@ namespace NzbDrone.Core.Datastore
                   .Ignore(c => c.Message);
 
             Mapper.Entity<IndexerStatus>("IndexerStatus").RegisterModel();
-            Mapper.Entity<DownloadClientStatus>("DownloadClientStatus").RegisterModel();
             Mapper.Entity<ApplicationStatus>("ApplicationStatus").RegisterModel();
             Mapper.Entity<NotificationStatus>("NotificationStatus").RegisterModel();
 
@@ -118,7 +110,6 @@ namespace NzbDrone.Core.Datastore
             SqlMapper.AddTypeHandler(new EmbeddedDocumentConverter<List<string>>());
             SqlMapper.AddTypeHandler(new EmbeddedDocumentConverter<ReleaseInfo>());
             SqlMapper.AddTypeHandler(new EmbeddedDocumentConverter<HashSet<int>>());
-            SqlMapper.AddTypeHandler(new EmbeddedDocumentConverter<List<DownloadClientCategory>>());
             SqlMapper.AddTypeHandler(new OsPathConverter());
             SqlMapper.RemoveTypeMap(typeof(Guid));
             SqlMapper.RemoveTypeMap(typeof(Guid?));

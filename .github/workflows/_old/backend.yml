@@ -1,0 +1,52 @@
+name: Backend
+
+on:
+  workflow_call:
+    inputs:
+      os: 
+        description: 'The OS to run on'
+        type: string
+        required: true
+      build_target:
+        description: 'The build target'
+        type: string
+        required: true
+      framework:
+        description: 'The framework to build for'
+        type: string
+        required: true
+      dotnet_version:
+        description: 'The dotnet version to use'
+        type: string
+        required: true
+      artifact_name:
+        description: 'The name of the artifact to publish'
+        type: string
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.dotnet_version }}
+      - name: Build Backend
+        env:
+          RID: ${{ inputs.build_target }}
+          FRAMEWORK: ${{ inputs.framework }}
+        shell: bash
+        run: ./build.sh --backend
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_${{ inputs.artifact_name }}
+          path: _output/
+      - name: Publish Test Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests_${{ inputs.artifact_name }}
+          path: _tests/

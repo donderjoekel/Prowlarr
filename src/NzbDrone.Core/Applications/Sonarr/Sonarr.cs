@@ -16,7 +16,7 @@ namespace NzbDrone.Core.Applications.Sonarr
 {
     public class Sonarr : ApplicationBase<SonarrSettings>
     {
-        public override string Name => "Sonarr";
+        public override string Name => "Mangarr";
 
         private readonly ICached<List<SonarrIndexer>> _schemaCache;
         private readonly ISonarrV3Proxy _sonarrV3Proxy;
@@ -63,19 +63,19 @@ namespace NzbDrone.Core.Applications.Sonarr
                         break;
                     case HttpStatusCode.BadRequest:
                         _logger.Warn(ex, "Prowlarr URL is invalid");
-                        failures.AddIfNotNull(new ValidationFailure("ProwlarrUrl", "Prowlarr URL is invalid, Sonarr cannot connect to Prowlarr"));
+                        failures.AddIfNotNull(new ValidationFailure("ProwlarrUrl", "Prowlarr URL is invalid, Mangarr cannot connect to Prowlarr"));
                         break;
                     case HttpStatusCode.SeeOther:
-                        _logger.Warn(ex, "Sonarr returned redirect and is invalid");
-                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", "Sonarr URL is invalid, Prowlarr cannot connect to Sonarr - are you missing a URL base?"));
+                        _logger.Warn(ex, "Mangarr returned redirect and is invalid");
+                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", "Mangarr URL is invalid, Prowlarr cannot connect to Mangarr - are you missing a URL base?"));
                         break;
                     case HttpStatusCode.NotFound:
-                        _logger.Warn(ex, "Sonarr not found");
-                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", "Sonarr URL is invalid, Prowlarr cannot connect to Sonarr. Is Sonarr running and accessible? Sonarr v2 is not supported."));
+                        _logger.Warn(ex, "Mangarr not found");
+                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", "Mangarr URL is invalid, Prowlarr cannot connect to Mangarr. Is Mangarr running and accessible? Mangarr v2 is not supported."));
                         break;
                     default:
                         _logger.Warn(ex, "Unable to complete application test");
-                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", $"Unable to complete application test, cannot connect to Sonarr. {ex.Message}"));
+                        failures.AddIfNotNull(new ValidationFailure("BaseUrl", $"Unable to complete application test, cannot connect to Mangarr. {ex.Message}"));
                         break;
                 }
             }
@@ -87,7 +87,7 @@ namespace NzbDrone.Core.Applications.Sonarr
             catch (Exception ex)
             {
                 _logger.Warn(ex, "Unable to complete application test");
-                failures.AddIfNotNull(new ValidationFailure("BaseUrl", $"Unable to complete application test, cannot connect to Sonarr. {ex.Message}"));
+                failures.AddIfNotNull(new ValidationFailure("BaseUrl", $"Unable to complete application test, cannot connect to Mangarr. {ex.Message}"));
             }
 
             return new ValidationResult(failures);
@@ -213,14 +213,14 @@ namespace NzbDrone.Core.Applications.Sonarr
 
                 if (indexerCapabilities.Categories.SupportedCategories(Settings.SyncCategories.ToArray()).Any() || indexerCapabilities.Categories.SupportedCategories(Settings.AnimeSyncCategories.ToArray()).Any())
                 {
-                    _logger.Debug("Remote indexer not found, re-adding {0} [{1}] to Sonarr", indexer.Name, indexer.Id);
+                    _logger.Debug("Remote indexer not found, re-adding {0} [{1}] to Mangarr", indexer.Name, indexer.Id);
                     sonarrIndexer.Id = 0;
                     var newRemoteIndexer = _sonarrV3Proxy.AddIndexer(sonarrIndexer, Settings);
                     _appIndexerMapService.Insert(new AppIndexerMap { AppId = Definition.Id, IndexerId = indexer.Id, RemoteIndexerId = newRemoteIndexer.Id });
                 }
                 else
                 {
-                    _logger.Debug("Remote indexer not found for {0} [{1}], skipping re-add to Sonarr due to indexer capabilities", indexer.Name, indexer.Id);
+                    _logger.Debug("Remote indexer not found for {0} [{1}], skipping re-add to Mangarr due to indexer capabilities", indexer.Name, indexer.Id);
                 }
             }
         }
@@ -245,7 +245,7 @@ namespace NzbDrone.Core.Applications.Sonarr
             var sonarrIndexer = new SonarrIndexer
             {
                 Id = id,
-                Name = $"{indexer.Name} (Prowlarr)",
+                Name = $"{indexer.Name} (Sourcerarr)",
                 EnableRss = indexer.Enable && indexer.AppProfile.Value.EnableRss,
                 EnableAutomaticSearch = indexer.Enable && indexer.AppProfile.Value.EnableAutomaticSearch,
                 EnableInteractiveSearch = indexer.Enable && indexer.AppProfile.Value.EnableInteractiveSearch,

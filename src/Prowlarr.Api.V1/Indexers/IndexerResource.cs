@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NzbDrone.Common.Extensions;
-using NzbDrone.Core.Annotations;
 using NzbDrone.Core.Indexers;
-using NzbDrone.Core.Indexers.Definitions.Cardigann;
 using NzbDrone.Core.IndexerVersions;
 using NzbDrone.Core.Parser;
-using Prowlarr.Http.ClientSchema;
 
 namespace Prowlarr.Api.V1.Indexers
 {
@@ -30,7 +26,6 @@ namespace Prowlarr.Api.V1.Indexers
         public IndexerPrivacy Privacy { get; set; }
         public IndexerCapabilityResource Capabilities { get; set; }
         public int Priority { get; set; }
-        public int DownloadClientId { get; set; }
         public DateTime Added { get; set; }
         public IndexerStatusResource Status { get; set; }
         public string SortName { get; set; }
@@ -58,28 +53,6 @@ namespace Prowlarr.Api.V1.Indexers
 
             var infoLinkName = definition.ImplementationName;
 
-            if (definition.Implementation == nameof(Cardigann))
-            {
-                var extraFields = definition.ExtraFields?.Select(MapField).ToList() ?? new List<Field>();
-
-                resource.Fields.AddRange(extraFields);
-
-                var settings = (CardigannSettings)definition.Settings;
-                foreach (var setting in settings.ExtraFieldData)
-                {
-                    var field = extraFields.FirstOrDefault(x => x.Name == setting.Key);
-
-                    //Use values from db for all but info type fields
-                    if (field != null && field.Type != "info")
-                    {
-                        field.Value = setting.Value;
-                    }
-                }
-
-                resource.DefinitionName = settings.DefinitionFile;
-                infoLinkName = settings.DefinitionFile;
-            }
-
             resource.InfoLink = $"https://wiki.servarr.com/prowlarr/supported-indexers#{infoLinkName.ToLower().Replace(' ', '-')}";
             resource.AppProfileId = definition.AppProfileId;
             resource.IndexerUrls = definition.IndexerUrls;
@@ -97,7 +70,6 @@ namespace Prowlarr.Api.V1.Indexers
             resource.Protocol = definition.Protocol;
             resource.Privacy = definition.Privacy;
             resource.Priority = definition.Priority;
-            resource.DownloadClientId = definition.DownloadClientId;
             resource.Added = definition.Added;
             resource.SortName = definition.Name.NormalizeTitle();
 
@@ -113,84 +85,15 @@ namespace Prowlarr.Api.V1.Indexers
 
             var definition = base.ToModel(resource, existingDefinition);
 
-            if (resource.Implementation == nameof(Cardigann))
-            {
-                var standardFields = base.ToResource(definition).Fields.Select(x => x.Name).ToList();
-
-                var settings = (CardigannSettings)definition.Settings;
-
-                var cardigannDefinition = _definitionService.GetCachedDefinition(settings.DefinitionFile);
-
-                foreach (var field in resource.Fields)
-                {
-                    if (!standardFields.Contains(field.Name))
-                    {
-                        if (field.Name == "cardigannCaptcha")
-                        {
-                            settings.ExtraFieldData["CAPTCHA"] = field.Value?.ToString() ?? string.Empty;
-                        }
-                        else
-                        {
-                            var cardigannSetting = cardigannDefinition.Settings.FirstOrDefault(x => x.Name == field.Name);
-                            settings.ExtraFieldData[field.Name] = MapValue(cardigannSetting, field.Value);
-                        }
-                    }
-                }
-            }
-
             definition.AppProfileId = resource.AppProfileId;
             definition.Enable = resource.Enable;
             definition.Redirect = resource.Redirect;
             definition.IndexerUrls = resource.IndexerUrls;
             definition.Priority = resource.Priority;
             definition.Privacy = resource.Privacy;
-            definition.DownloadClientId = resource.DownloadClientId;
             definition.Added = resource.Added;
 
             return definition;
-        }
-
-        private object MapValue(SettingsField setting, object value)
-        {
-            return setting.Type switch
-            {
-                "select" => value.ToString().ParseInt64() ?? 0,
-                "checkbox" => bool.TryParse(value.ToString(), out var result) && result,
-                _ => value?.ToString() ?? string.Empty
-            };
-        }
-
-        private Field MapField(SettingsField setting, int order)
-        {
-            var field = new Field
-            {
-                Name = setting.Name,
-                Label = setting.Label,
-                Order = order,
-                Type = setting.Type == "text" ? "textbox" : setting.Type
-            };
-
-            if (setting.Type == "select")
-            {
-                var sorted = setting.Options.OrderBy(x => x.Key).ToList();
-                field.SelectOptions = sorted.Select((x, i) => new SelectOption
-                {
-                    Value = i,
-                    Name = x.Value
-                }).ToList();
-
-                field.Value = sorted.Select(x => x.Key).ToList().IndexOf(setting.Default);
-            }
-            else if (setting.Type == "checkbox")
-            {
-                field.Value = bool.TryParse(setting.Default, out var value) && value;
-            }
-            else
-            {
-                field.Value = setting.Default;
-            }
-
-            return field;
         }
 
         public List<IndexerResource> ToResource(IEnumerable<IndexerDefinition> models)

@@ -1,0 +1,76 @@
+name: Package
+
+on:
+  workflow_call:
+    inputs:
+      os: 
+        description: 'The OS to run on'
+        type: string
+        required: true
+      build_target:
+        description: 'The build target'
+        type: string
+        required: true
+      framework:
+        description: 'The framework to build for'
+        type: string
+        required: true
+      dotnet_version:
+        description: 'The dotnet version to use'
+        type: string
+        required: true
+      release_version:
+        description: 'The release version'
+        type: string
+        required: true
+      artifact_name:
+        description: 'The name of the artifact to publish'
+        type: string
+        required: true
+
+jobs:
+  build:
+    runs-on: ${{ inputs.os }}
+    steps:
+    - name: Check out
+      uses: actions/checkout@v4
+    - name: Download Backend Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: build_${{ inputs.artifact_name }}
+        path: _output/
+    - name: Download Frontend Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: frontend_${{ inputs.artifact_name }}
+        path: _output/
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ inputs.dotnet_version }}
+    - name: Package
+      env:
+        RID: ${{ inputs.build_target }}
+        FRAMEWORK: ${{ inputs.framework }}
+      shell: bash
+      run: ./build.sh --packages
+    - name: Set executable bits
+      run: |
+        find . -name "Prowlarr" -exec chmod -v 777 {} \;
+        find . -name "Prowlarr.Update" -exec chmod -v 777 {} \;
+    - name: Create linux archive
+      if: ${{ inputs.build_target }} == 'linux-x64'
+      run: |
+        cd _artifacts/linux-x64/net6.0/
+        tar -cvzf ${{ github.workspace }}/_artifacts/Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.tar.gz .
+        cd ${{ github.workspace }}
+        rm -r _artifacts/linux-x64
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        # name: release_${{ inputs.artifact_name }}
+        name: Prowlarr.${{ github.ref_name }}.${{ inputs.release_version }}.${{ inputs.build_target }}.tar.gz
+        if-no-files-found: error
+        path: |
+          _artifacts/*.tar.gz
+          _artifacts/*.zip

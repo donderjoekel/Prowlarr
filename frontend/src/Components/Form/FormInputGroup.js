@@ -9,7 +9,6 @@ import CaptchaInputConnector from './CaptchaInputConnector';
 import CardigannCaptchaInputConnector from './CardigannCaptchaInputConnector';
 import CheckInput from './CheckInput';
 import DeviceInputConnector from './DeviceInputConnector';
-import DownloadClientSelectInputConnector from './DownloadClientSelectInputConnector';
 import EnhancedSelectInput from './EnhancedSelectInput';
 import EnhancedSelectInputConnector from './EnhancedSelectInputConnector';
 import FormInputHelpText from './FormInputHelpText';
@@ -68,9 +67,6 @@ function getComponent(type) {
 
     case inputTypes.CATEGORY_SELECT:
       return NewznabCategorySelectInputConnector;
-
-    case inputTypes.DOWNLOAD_CLIENT_SELECT:
-      return DownloadClientSelectInputConnector;
 
     case inputTypes.INDEXER_FLAGS_SELECT:
       return IndexerFlagsSelectInputConnector;

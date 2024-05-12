@@ -1,0 +1,86 @@
+<#@ template hostspecific="true" language="C#" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ include file="../Model.ttinclude" #><#@ import namespace="System.Linq" #>
+
+<#
+    var models = new List<BuddyComplexModel>()
+    {
+        new("BoxManhwa", "Box Manhwa", "https://boxmanhwa.com/"),
+        new("TrueManga", "True Manga", "https://truemanga.com/"),
+        new("ManhwaTube", "Manhwa Tube", "https://manhwatube.com/"),
+        new("MangaXYZ", "Manga XYZ", "https://mangaxyz.com/"),
+        new("MangaSpin", "Manga Spin", "https://mangaspin.com/"),
+        new("MangaSaga", "Manga Saga", "https://mangasaga.com/"),
+        new("MangaMad", "Manga Mad", "https://mangamad.com/"),
+        new("MangaForest", "Manga Forest", "https://mangaforest.com/"),
+        new("MangaFab", "Manga Fab", "https://mangafab.com/"),
+        new("MangaCute", "Manga Cute", "https://mangacute.com/"),
+        new("MangaBuddy", "Manga Buddy", "https://mangabuddy.com/home/"),
+    };
+    
+    var dupedGroups = models.GroupBy(x => x.ClassName).Where(x => x.Count() > 1).ToList();
+    foreach (var dupedGroup in dupedGroups)
+    {
+        Console.WriteLine("Duplicate group: " + dupedGroup.Key);
+    }
+
+    if (dupedGroups.Any())
+    {
+        throw new Exception("Duplicates found, exiting");
+    }
+
+    var generatedFolderPath = Path.Combine(Path.GetDirectoryName(Host.ResolvePath("BuddyComplexGenerator.cs")), "Generated");
+    if (Directory.Exists(generatedFolderPath))
+        Directory.Delete(generatedFolderPath, true);
+
+    foreach (var model in models)
+    {
+        var fileName = $"{model.ClassName}.g.cs";
+        var filePath = Host.ResolvePath(fileName);
+
+        var directoryName = Path.GetDirectoryName(filePath);
+        var generatedPath = Path.Combine(directoryName, "Generated");
+
+        if (!Directory.Exists(generatedPath))
+            Directory.CreateDirectory(generatedPath);
+
+        var generatedFilePath = Path.Combine(generatedPath, fileName);
+
+        File.WriteAllText(generatedFilePath, GenerateClass(model));
+    }
+#>
+
+<#+
+    public string GenerateClass(Model model)
+    {
+        return $@"// Auto generated
+
+using System;
+using NLog;
+using NzbDrone.Core.Configuration;
+using NzbDrone.Core.Messaging.Events;
+
+namespace NzbDrone.Core.Indexers.Definitions.BuddyComplex;
+
+public class {model.ClassName} : BuddyComplexBase
+{{
+    public {model.ClassName}(IIndexerHttpClient httpClient, IEventAggregator eventAggregator, IIndexerStatusService indexerStatusService, IConfigService configService, Logger logger, IServiceProvider provider) : base(httpClient, eventAggregator, indexerStatusService, configService, logger, provider)
+    {{
+    }}
+
+    public override string Name => ""{model.Name}"";
+
+    public override string[] IndexerUrls => new[] {{ ""{model.Url}"" }};
+}}
+
+";
+    }
+
+    public class BuddyComplexModel : Model
+    {
+        public BuddyComplexModel(string className, string name, string url) : base(className, name, url)
+        {
+        }
+    }
+#>

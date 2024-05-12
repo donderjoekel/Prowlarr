@@ -23,7 +23,7 @@ namespace NzbDrone.Core.Applications.Sonarr
 
     public class SonarrV3Proxy : ISonarrV3Proxy
     {
-        private static Version MinimumApplicationVersion => new (3, 0, 5, 0);
+        private static Version MinimumApplicationVersion => new (0, 1, 0, 0);
 
         private const string AppApiRoute = "/api/v3";
         private const string AppIndexerApiRoute = $"{AppApiRoute}/indexer";
@@ -132,12 +132,12 @@ namespace NzbDrone.Core.Applications.Sonarr
 
             if (applicationVersion == null)
             {
-                return new ValidationFailure(string.Empty, "Failed to fetch Sonarr version");
+                return new ValidationFailure(string.Empty, "Failed to fetch Mangarr version");
             }
 
             if (new Version(applicationVersion) < MinimumApplicationVersion)
             {
-                return new ValidationFailure(string.Empty, $"Sonarr version should be at least {MinimumApplicationVersion.ToString(3)}. Version reported is {applicationVersion}", applicationVersion);
+                return new ValidationFailure(string.Empty, $"Mangarr version should be at least {MinimumApplicationVersion.ToString(3)}. Version reported is {applicationVersion}", applicationVersion);
             }
 
             return null;

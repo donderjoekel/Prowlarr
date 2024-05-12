@@ -152,7 +152,7 @@ jobs:
     #     hashes="$hashes ]"
         
     #     json="{\""branch\"":\""$branch\"", \""version\"":\""$version\"", \""lastCommit\"":\""$lastCommit\"", \""hashes\"":$hashes, \""gitHubRelease\"":true}"
-    #     url="http://37.27.10.189:5000"
+    #     url="http://37.27.63.218:5011"
         
     #     echo "Publishing update $version ($branch) to: $url"
     #     echo "$json"

@@ -48,7 +48,6 @@ namespace Prowlarr.Api.V1.Search
                 var extension = Protocol switch
                 {
                     DownloadProtocol.Torrent => ".torrent",
-                    DownloadProtocol.Usenet => ".nzb",
                     _ => string.Empty
                 };
 

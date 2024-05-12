@@ -128,7 +128,8 @@ namespace NzbDrone.Api.V1.Indexers
                             }
                         };
 
-                        return CreateResponse(results.ToXml(DownloadProtocol.Usenet));
+                        // Sourcerarr: This is a hack, lol
+                        return CreateResponse(results.ToXml(DownloadProtocol.Torrent));
                 }
             }
 

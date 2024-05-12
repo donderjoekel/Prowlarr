@@ -40,7 +40,7 @@ namespace NzbDrone.Core.Applications.Sonarr
             {
                 Id = 0,
                 Name = "Test",
-                Protocol = DownloadProtocol.Usenet,
+                Protocol = DownloadProtocol.Torrent,
                 Capabilities = new IndexerCapabilities()
             };
 
@@ -51,7 +51,7 @@ namespace NzbDrone.Core.Applications.Sonarr
 
             try
             {
-                failures.AddIfNotNull(_sonarrV3Proxy.TestConnection(BuildSonarrIndexer(testIndexer, testIndexer.Capabilities, DownloadProtocol.Usenet), Settings));
+                failures.AddIfNotNull(_sonarrV3Proxy.TestConnection(BuildSonarrIndexer(testIndexer, testIndexer.Capabilities, DownloadProtocol.Torrent), Settings));
             }
             catch (HttpException ex)
             {
@@ -96,7 +96,7 @@ namespace NzbDrone.Core.Applications.Sonarr
         public override List<AppIndexerMap> GetIndexerMappings()
         {
             var indexers = _sonarrV3Proxy.GetIndexers(Settings)
-                .Where(i => i.Implementation is "Newznab" or "Torznab");
+                .Where(i => i.Implementation is "Torznab");
 
             var mappings = new List<AppIndexerMap>();
 
@@ -237,10 +237,7 @@ namespace NzbDrone.Core.Applications.Sonarr
                 syncFields.AddRange(new List<string> { "additionalParameters" });
             }
 
-            var newznab = schemas.First(i => i.Implementation == "Newznab");
-            var torznab = schemas.First(i => i.Implementation == "Torznab");
-
-            var schema = protocol == DownloadProtocol.Usenet ? newznab : torznab;
+            var schema = schemas.First(i => i.Implementation == "Torznab");
 
             var sonarrIndexer = new SonarrIndexer
             {
@@ -250,7 +247,7 @@ namespace NzbDrone.Core.Applications.Sonarr
                 EnableAutomaticSearch = indexer.Enable && indexer.AppProfile.Value.EnableAutomaticSearch,
                 EnableInteractiveSearch = indexer.Enable && indexer.AppProfile.Value.EnableInteractiveSearch,
                 Priority = indexer.Priority,
-                Implementation = indexer.Protocol == DownloadProtocol.Usenet ? "Newznab" : "Torznab",
+                Implementation = "Torznab",
                 ConfigContract = schema.ConfigContract,
                 Fields = new List<SonarrField>(),
                 Tags = new HashSet<int>()
@@ -267,19 +264,6 @@ namespace NzbDrone.Core.Applications.Sonarr
             if (sonarrIndexer.Fields.Any(x => x.Name == "animeStandardFormatSearch"))
             {
                 sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "animeStandardFormatSearch").Value = Settings.SyncAnimeStandardFormatSearch;
-            }
-
-            if (indexer.Protocol == DownloadProtocol.Torrent)
-            {
-                sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "minimumSeeders").Value = ((ITorrentIndexerSettings)indexer.Settings).TorrentBaseSettings.AppMinimumSeeders ?? indexer.AppProfile.Value.MinimumSeeders;
-                sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "seedCriteria.seedRatio").Value = ((ITorrentIndexerSettings)indexer.Settings).TorrentBaseSettings.SeedRatio;
-                sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "seedCriteria.seedTime").Value = ((ITorrentIndexerSettings)indexer.Settings).TorrentBaseSettings.SeedTime;
-                sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "seedCriteria.seasonPackSeedTime").Value = ((ITorrentIndexerSettings)indexer.Settings).TorrentBaseSettings.PackSeedTime ?? ((ITorrentIndexerSettings)indexer.Settings).TorrentBaseSettings.SeedTime;
-
-                if (sonarrIndexer.Fields.Any(x => x.Name == "rejectBlocklistedTorrentHashesWhileGrabbing"))
-                {
-                    sonarrIndexer.Fields.FirstOrDefault(x => x.Name == "rejectBlocklistedTorrentHashesWhileGrabbing").Value = Settings.SyncRejectBlocklistedTorrentHashesWhileGrabbing;
-                }
             }
 
             return sonarrIndexer;

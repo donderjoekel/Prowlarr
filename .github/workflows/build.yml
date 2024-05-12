@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - develop
-      - sourcerarr
+      - main
     paths-ignore:
       - 'src/Prowlarr.Api.*/openapi.json'
   pull_request:
@@ -217,7 +217,7 @@ jobs:
   #       binary_path: ${{ matrix.binary_path }}
 
   deploy:
-    if: ${{ github.ref_name == 'develop' || github.ref_name == 'sourcerarr' }}
+    if: ${{ github.ref_name == 'develop' || github.ref_name == 'main' }}
     # needs: [backend, frontend, unit_test, unit_test_postgres, integration_test]
     needs: [backend, frontend]
     secrets: inherit
@@ -232,7 +232,7 @@ jobs:
     name: Discord Notification
     # needs: [backend, frontend, unit_test, unit_test_postgres, integration_test, deploy]
     needs: [backend, frontend, deploy]
-    if: ${{ !cancelled() && (github.ref_name == 'develop' || github.ref_name == 'sourcerarr') }}
+    if: ${{ !cancelled() && (github.ref_name == 'develop' || github.ref_name == 'main') }}
     env:
       STATUS: ${{ contains(needs.*.result, 'failure') && 'failure' || 'success' }}
     runs-on: ubuntu-latest
